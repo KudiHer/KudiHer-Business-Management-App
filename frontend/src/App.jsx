@@ -1,7 +1,6 @@
 import "./themes/global.css";
 import { Routes, Route } from "react-router-dom";
-import { SideBar } from "./components/SideBar/SideBar";
-import { Dashboard } from "./pages/Dashboard/Dashboard";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import WelcomePage from "./pages/WelcomePage/WelcomePage";
 import CreateAccount from "./pages/CreateAccount/CreateAccount";
 import SignIn from "./pages/SignIn/SignIn";
