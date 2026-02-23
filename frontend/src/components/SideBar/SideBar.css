@@ -1,0 +1,109 @@
+@import url('../../themes/variables.css');
+
+
+.sideBar {
+    width: 25%; /* Standard fixed width for sidebars */
+    height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #ccc; 
+    color: var(--primary-font--color);
+}
+
+.sideBarLogo {
+    display: flex;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    margin-left: 3.5rem;
+    margin-bottom: .75rem;
+}
+
+.sideBarLogo svg {
+    width: 4rem; /* Adjust as needed */
+    height: 4rem; /* Adjust as needed */
+    fill: var(--primary-brand-color);
+}
+
+.sideBarLogo span {
+    margin-left: 0.75rem;
+    color: var(--secondary-brand-color);
+    font-weight: 700;
+    font-size: 2.5rem; 
+}
+
+.sideBarNav {
+    flex: 1;
+    padding: 0 2rem;
+    margin-left: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: ;
+}
+
+.sideBarNav ul {
+    list-style: none;
+    padding: 0;      
+    margin: 0;        
+}
+
+.sideBarNav li {
+    padding: 0;
+    margin: 0;
+}
+.sideBarNavListLink {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    color: var(--primary-font--color);
+}
+
+
+
+.sideBarNavListLink.active {
+    background-color: var(--background-color-two);
+    color: var(--secondary-brand-color);
+}
+
+
+.sideBarNavListLink.active span {
+    color: var(--secondary-brand-color);
+    font-weight: 600;
+}
+
+.sideBarNavListLink.active svg {
+    fill: var(--secondary-brand-color);
+}
+
+
+.sideBarNavListLink:hover {
+    background-color: var(--background-color-two);
+}
+
+.sideBarNavListLink span {
+    font-size: 1rem;
+    margin-left: 1rem;
+    pointer-events: none; 
+}
+
+.sideBarNavListLinkSvg {
+   width: 24px;        
+    height: 24px;       
+    min-width: 24px;    
+    display: inline-block;
+    flex-shrink: 0;
+    fill: var(--primary-font--color);
+}
+
+.sideBarNavListLinkSvg.active {
+    fill: var(--secondary-brand-color);
+}
+
+.sideBarNavBottom{
+    justify-content: flex-end;
+    align-items: baseline;
+}
