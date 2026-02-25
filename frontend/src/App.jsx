@@ -1,41 +1,17 @@
-<<<<<<< HEAD
-
-import './themes/global.css';
-
-import { Routes, Route } from "react-router-dom";
-
-import  Dashboard   from "./pages/Dashboard/Dashboard";
-
-
-function App() {
-   return (
-    <>
-    <main className="appContainer">
-    
-
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      
-    </Routes>
-    </main>
-    </>
-  );
-}
-
-
-export default App
-=======
 import "./themes/global.css";
 import { Routes, Route } from "react-router-dom";
 import { SideBar } from "./components/SideBar/SideBar";
-import { Dashboard } from "./pages/Dashboard/Dashboard";
+import  Dashboard  from "./pages/Dashboard/Dashboard";
 import WelcomePage from "./pages/WelcomePage/WelcomePage";
 import CreateAccount from "./pages/CreateAccount/CreateAccount";
 import SignIn from "./pages/SignIn/SignIn";
 import BusinessSetup from "./pages/BusinessSetup/BusinessSetup";
+import Transactions  from "./pages/Transactions/Transactions";
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
+    <AuthProvider>
     <Routes>
       <Route path="/" element={<WelcomePage />} />
       <Route path="/create-account" element={<CreateAccount />} />
@@ -52,9 +28,18 @@ function App() {
           </main>
         }
       />
+      <Route
+        path="/transactions"
+        element={
+          <main className="appContainer">
+            <SideBar />
+            <Transactions />
+          </main>
+        }
+      />
     </Routes>
-  );
+    </AuthProvider>
+      );
 }
 
 export default App;
->>>>>>> origin/main

@@ -1,4 +1,5 @@
 import { useState } from "react";
+// import { SideBar } from "../../components/SideBar/SideBar";
 import SummaryCard from "../../components/SummaryCard/SummaryCard";
 import ActionButtons from "../../components/ActionButtons/ActionButtons";
 import LowStockAlert from "../../components/LowStockAlert/LowStockAlert";
@@ -51,7 +52,7 @@ export default function Dashboard() {
   const summary = transactions ? computeSummary(period, transactions) : null;
   return (
     <>
-    <SideBar />
+    {/* <SideBar /> */}
    <main className={styles.main}>
 
       {/* ── Header ── */}

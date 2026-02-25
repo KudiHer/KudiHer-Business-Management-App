@@ -270,3 +270,15 @@ export function computeCashFlow(period, txns = []) {
 export const postAddIncome  = (p) => createTransaction({ ...p, type: "income"  });
 export const postAddExpense = (p) => createTransaction({ ...p, type: "expense" });
 export const postRecordLoan = (p) => createTransaction({ ...p, type: "loan"    });
+
+
+export async function fetchLowStockItems() {
+  // Option A: Return empty (the alert will simply stay hidden)
+  // return []; 
+
+  // Option B: Return dummy data so you can still see the UI works
+  return [
+    { id: 1, name: "Golden Penny Semovita (2kg)", quantity: 3, threshold: 10 },
+    { id: 2, name: "Peak Milk (Tin)", quantity: 5, threshold: 15 }
+  ];
+}
