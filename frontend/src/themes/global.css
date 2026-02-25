@@ -9,6 +9,7 @@
     flex-direction: row;
     width: 100vw;
     max-width: 90rem;
+    min-height: 100vh;
     height: 100vh;
     box-sizing: border-box;
     font-family: "Inter", sans-serif;
