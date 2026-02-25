@@ -1,0 +1,106 @@
+.bs-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #eef1f8;
+  padding: 60px 24px;
+}
+
+.bs-card-wrapper {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bs-back {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 0;
+  align-self: flex-start;
+}
+
+.bs-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 8px 0;
+}
+
+.bs-subtitle {
+  color: #888;
+  font-size: 15px;
+  margin: 0 0 32px 0;
+}
+
+.bs-card {
+  background: #e8f8f0;
+  border: 1px solid #d0edd9;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.bs-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.bs-field:last-child {
+  margin-bottom: 0;
+}
+
+.bs-field label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.bs-field input,
+.bs-field select {
+  padding: 16px 20px;
+  border: 1px solid #d0edd9;
+  border-radius: 12px;
+  background: white;
+  font-size: 15px;
+  color: #333;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.bs-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+.bs-field input::placeholder,
+.bs-field select option[value=""] {
+  color: #bbb;
+}
+
+.bs-btn-primary {
+  background-color: #1a7a5e;
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+}

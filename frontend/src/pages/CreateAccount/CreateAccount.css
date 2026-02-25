@@ -1,0 +1,128 @@
+.ca-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: #eef1f8;
+  padding: 40px 24px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.ca-back {
+  background: none;
+  border: none;
+  color: #1a7a5e;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 0;
+}
+
+.ca-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 6px 0;
+}
+
+.ca-subtitle {
+  color: #888;
+  font-size: 15px;
+  margin: 0 0 28px 0;
+}
+
+.ca-card {
+  background: #e8f8f0;
+  border: 1px solid #d0edd9;
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.ca-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.ca-field:last-child {
+  margin-bottom: 0;
+}
+
+.ca-field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.ca-field input,
+.ca-field select {
+  padding: 14px 16px;
+  border: 1px solid #d0edd9;
+  border-radius: 10px;
+  background: white;
+  font-size: 15px;
+  color: #333;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ca-field input::placeholder {
+  color: #bbb;
+}
+
+.ca-input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ca-input-icon input {
+  padding-right: 44px;
+}
+
+.ca-input-icon span {
+  position: absolute;
+  right: 14px;
+  cursor: pointer;
+  color: #888;
+}
+
+.ca-hint {
+  font-size: 12px;
+  color: #888;
+  margin: 8px 0 0 0;
+}
+
+.ca-btn-primary {
+  background-color: #1a7a5e;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.ca-signin {
+  text-align: center;
+  width: 100%;
+  margin-top: 20px;
+  color: #888;
+  font-size: 14px;
+}
+
+.ca-signin a {
+  color: #1a7a5e;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}

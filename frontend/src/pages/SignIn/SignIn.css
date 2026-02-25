@@ -1,0 +1,148 @@
+.si-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #eef1f8;
+  padding: 40px 24px;
+}
+
+.si-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 40px;
+  padding: 0;
+}
+
+.si-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 8px 0;
+}
+
+.si-subtitle {
+  color: #888;
+  font-size: 15px;
+  margin: 0 0 40px 0;
+}
+
+.si-form {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.si-input {
+  width: 100%;
+  padding: 18px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  font-size: 15px;
+  color: #333;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.si-form > .si-input:first-child {
+  border-radius: 12px 12px 0 0;
+  border-bottom: none;
+}
+
+.si-input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.si-input-icon .si-input {
+  border-radius: 0 0 12px 12px;
+  padding-right: 44px;
+}
+
+.si-input-icon span {
+  position: absolute;
+  right: 14px;
+  cursor: pointer;
+  color: #888;
+}
+
+.si-forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  margin-bottom: 28px;
+}
+
+.si-forgot {
+  color: #1a7a5e;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.si-btn-primary {
+  background-color: #1a7a5e;
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.si-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.si-divider::before,
+.si-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+  margin: 0 12px;
+}
+
+.si-btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 28px;
+}
+
+.si-signup {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+
+.si-signup a {
+  color: #1a7a5e;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
