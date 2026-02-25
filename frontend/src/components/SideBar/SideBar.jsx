@@ -9,157 +9,11 @@ import CashFlowIcon from "../../assets/images/sideBarImages/cashFlowIcon.svg?rea
 import ProfitabilityIcon from "../../assets/images/sideBarImages/profitabilityIcon.svg?react";
 import SettingsIcon from "../../assets/images/sideBarImages/settingsIcon.svg?react";
 import ProfileImageIcon from "../../assets/images/sideBarImages/profileImageIcon.svg?react";
-<<<<<<< HEAD
-
-=======
 import { Link } from "react-router-dom";
->>>>>>> origin/main
 import { NavLink } from "react-router-dom";
 // import { useState } from "react";
 
 export function SideBar({
-<<<<<<< HEAD
-  title = "Ada's Mart",
-  designation = "Store Owner",
-} = {}) {
-  //   const [activeTab, setActiveTab] = useState("Dashboard");
-  //     const handleTabClick = (tab) => {
-  //         setActiveTab(tab);
-  //     };
-
-  return (
-    <>
-      <aside className="sideBar">
-        <div className="sideBarLogo">
-          <KudiHerLogo />
-          <span>KudiHer</span>
-        </div>
-        <div className="sideBarNav">
-          <nav className="sideBarNavListContainer">
-            <ul>
-              <li className="sideBarNavList">
-                <NavLink
-                  to="/"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <DashboardIcon className="sideBarNavListLinkSvg" />
-                  <span>Dashboard</span>
-                </NavLink>
-              </li>
-              <li className="sideBarNavList">
-                <NavLink
-                  to="/transaction"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <TransactionsIcon className="sideBarNavListLinkSvg" />
-                  <span>Transactions</span>
-                </NavLink>
-              </li>
-              <li className="sideBarNavList">
-                <NavLink
-                  to="/inventoryai"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <InventoryAiIcon className="sideBarNavListLinkSvg" />
-                  <span>Inventory AI</span>
-                </NavLink>
-              </li>
-              <li className="sideBarNavList">
-                <NavLink
-                  to="/stock"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <StockIcon className="sideBarNavListLinkSvg" />
-                  <span>Stock</span>
-                </NavLink>
-              </li>
-              <li className="sideBarNavList">
-                <NavLink
-                  to="/reports"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <ReportsIcon className="sideBarNavListLinkSvg" />
-                  <span>Reports</span>
-                </NavLink>
-              </li>
-              <li className="sideBarNavList">
-                <NavLink
-                  to="/cashflow"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <CashFlowIcon className="sideBarNavListLinkSvg" />
-                  <span>Cash Flow</span>
-                </NavLink>
-              </li>
-              <li className="sideBarNavList">
-                <NavLink
-                  to="/profitability"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <ProfitabilityIcon className="sideBarNavListLinkSvg" />
-                  <span>Profitability</span>
-                </NavLink>
-              </li>
-            </ul>
-          </nav>
-
-          <nav className="sideBarNavBottom">
-            <ul>
-              <li className="sideBarNavList settings">
-                <NavLink
-                  to="/settings"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "sideBarNavListLink active"
-                      : "sideBarNavListLink"
-                  }
-                >
-                  <SettingsIcon className="sideBarNavListLinkSvg" />
-                  <span>Settings</span>
-                </NavLink>
-              </li>
-              <li className="sideBarProfile">
-                <ProfileImageIcon className="sideBarProfileIcon" />
-                <div className="sideBarProfileText">
-                  <span className="sideBarProfileName">{title}</span>
-                  <span className="sideBarProfileRole">{designation}</span>
-                </div>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </aside>
-    </>
-  );
-=======
     title = "Ada's Mart",
     designation = "Store Owner"
 } = {}) {
@@ -242,5 +96,4 @@ export function SideBar({
         </aside>
         </>
     );
->>>>>>> origin/main
 }
