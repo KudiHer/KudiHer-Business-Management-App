@@ -1,0 +1,44 @@
+.alert {
+  background: #fff8ef;
+  border: 1.5px solid #f6c97a;
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  font-size: 20px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #b45309;
+}
+
+.items {
+  margin: 0;
+  font-size: 14px;
+  color: #7a6040;
+  line-height: 1.5;
+}
+
+.link {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a9e6e;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

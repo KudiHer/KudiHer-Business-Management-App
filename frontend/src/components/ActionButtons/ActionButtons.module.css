@@ -1,0 +1,38 @@
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 2px solid transparent;
+  font-family: inherit;
+}
+
+.primary {
+  background: #1a9e6e;
+  color: #fff;
+  border-color: #1a9e6e;
+}
+
+.primary:hover {
+  background: #168a5f;
+  border-color: #168a5f;
+}
+
+.outline {
+  background: #fff;
+  color: #333;
+  border-color: #d5d8de;
+}
+
+.outline:hover {
+  border-color: #1a9e6e;
+  color: #1a9e6e;
+}
