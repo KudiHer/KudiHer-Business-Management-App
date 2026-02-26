@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const ALLOWED_PAYMENT_METHODS = ['cash', 'bank transfer', 'transfer', 'card', 'pos', 'mobile money', 'wallet', 'other'];
+
 const transactionSchema = new mongoose.Schema(
   {
     user: {
@@ -19,13 +21,44 @@ const transactionSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, 'Please add transaction description'],
-      trim: true
+      trim: true,
+      default: ''
     },
     category: {
       type: String,
       required: [true, 'Please add transaction category'],
       trim: true
+    },
+    item: {
+      type: String,
+      trim: true
+    },
+    paymentMethod: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      enum: {
+        values: ALLOWED_PAYMENT_METHODS,
+        message: 'Invalid payment method'
+      }
+    },
+    customerName: {
+      type: String,
+      trim: true
+    },
+    vendorName: {
+      type: String,
+      trim: true
+    },
+    notes: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Notes cannot exceed 500 characters']
+    },
+    receiptPhotoUrl: {
+      type: String,
+      trim: true,
+      maxlength: [2048, 'Receipt photo URL is too long']
     },
     date: {
       type: Date,
