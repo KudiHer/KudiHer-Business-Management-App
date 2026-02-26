@@ -1,0 +1,305 @@
+/* =============================================================================
+   src/components/AppLayout/AppLayout.css
+   
+   Styles the shared authenticated-page shell:
+     • .appLayout          — full-viewport root column
+     • .appLayout__topBar  — sticky mobile top-bar (hidden on desktop)
+     • .appLayout__backdrop / .appLayout__drawer — slide-in mobile nav
+     • .appLayout__body    — flex row: sidebar + page content
+   ============================================================================= */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ROOT WRAPPER
+   Full viewport height column so the sticky top-bar sits above the body row.
+───────────────────────────────────────────────────────────────────────────── */
+.appLayout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;   /* stacking context for fixed drawer/backdrop */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BODY ROW  (sidebar + page content side by side on desktop)
+───────────────────────────────────────────────────────────────────────────── */
+.appLayout__body {
+  display: flex;
+  flex: 1;
+  /* overflow hidden prevents the sidebar from causing horizontal scroll */
+  overflow: hidden;
+}
+
+.appLayout__content {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;   /* prevents flex children from overflowing */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE TOP-BAR
+   Hidden on desktop.  Becomes visible at ≤768px.
+   Layout: [mint hamburger square] · [page title] · [invisible spacer]
+───────────────────────────────────────────────────────────────────────────── */
+.appLayout__topBar {
+  display: none;                    /* hidden on desktop */
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+/* Mint square hamburger — matches the DASHBOARD.png mockup */
+.appLayout__hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #e8f7f1;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #059669;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.appLayout__hamburger:hover {
+  background: #d1fae5;
+}
+
+/* Page title in the centre of the top-bar */
+.appLayout__topBarTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111;
+  font-family: 'Sora', sans-serif;
+  text-align: center;
+  flex: 1;
+}
+
+/* Invisible right spacer — same width as hamburger, centres the title */
+.appLayout__topBarSpacer {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DRAWER BACKDROP
+   Always in the DOM.  Transparent + pointer-events:none until --visible.
+───────────────────────────────────────────────────────────────────────────── */
+.appLayout__backdrop {
+  display: none;                    /* shown on mobile only */
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 300;
+  pointer-events: none;
+  transition: background 0.25s ease;
+}
+
+.appLayout__backdrop--visible {
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE DRAWER PANEL
+   Always in DOM; off-screen until .appLayout__drawer--open.
+   Tokens and visual style match SideBar.css exactly.
+───────────────────────────────────────────────────────────────────────────── */
+.appLayout__drawer {
+  display: none;                    /* shown on mobile only */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  z-index: 400;
+  flex-direction: column;
+  padding: 24px 18px;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.appLayout__drawer--open {
+  transform: translateX(0);
+}
+
+/* ── Drawer header row: logo + close ── */
+.appLayout__drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
+.appLayout__drawerLogoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.appLayout__drawerLogo {
+  width: 38px;
+  height: 38px;
+}
+
+.appLayout__drawerLogoText {
+  font-size: 20px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.appLayout__drawerClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.appLayout__drawerClose:hover {
+  background: #f4f5f7;
+  color: #374151;
+}
+
+/* ── Nav list ── */
+.appLayout__drawerNav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+/* ── Nav link — mirrors .sideBarNavListLink from SideBar.css ── */
+.appLayout__drawerLink {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+.appLayout__drawerLink:hover {
+  background-color: #f5f5f5;
+}
+
+/* ── Active state — mirrors .sideBarNavListLink.active ── */
+.appLayout__drawerLink--active {
+  background-color: #d1fae5;
+  color: #059669;
+  font-weight: 600;
+}
+
+/* ── Link icon — mirrors .sideBarNavListLinkSvg ── */
+.appLayout__drawerIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+/* ── Bottom section: settings + profile ── */
+.appLayout__drawerBottom {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Profile row ── */
+.appLayout__drawerProfile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px 0;
+}
+
+.appLayout__drawerProfileIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  flex-shrink: 0;
+}
+
+.appLayout__drawerProfileText {
+  display: flex;
+  flex-direction: column;
+}
+
+.appLayout__drawerProfileName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.appLayout__drawerProfileRole {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RESPONSIVE — MOBILE  ≤768px
+   Show the mobile chrome; the sidebar is hidden by SideBar.css at this
+   breakpoint so the page content expands to fill the full width.
+───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  .appLayout__topBar  { display: flex;  }
+  .appLayout__backdrop{ display: block; }
+  .appLayout__drawer  { display: flex;  }
+
+  /* Body: single column — sidebar is hidden by SideBar.css, content fills all */
+  .appLayout__body {
+    flex-direction: column;
+  }
+
+  .appLayout__content {
+    /* No extra padding here — each page controls its own padding */
+    overflow-y: visible;
+  }
+
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RESPONSIVE — SMALL MOBILE  ≤420px
+───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 420px) {
+
+  .appLayout__topBar {
+    padding: 10px 14px;
+  }
+
+  .appLayout__topBarTitle {
+    font-size: 15px;
+  }
+
+}

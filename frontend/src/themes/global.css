@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box; 
+  font-family: "Inter", sans-serif;
 }
 
 .appContainer{
@@ -11,6 +12,6 @@
     max-width: 90rem;
     min-height: 100vh;
     box-sizing: border-box;
-    font-family: "Inter", sans-serif;
+    
     font-optical-sizing: auto;
   }

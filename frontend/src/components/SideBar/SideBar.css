@@ -1,3 +1,13 @@
+/* =============================================================================
+   src/components/SideBar/SideBar.css
+   
+   Changes from the uploaded original:
+     • Added @media (max-width: 768px) block at the bottom that hides the
+       sidebar completely on mobile. The mobile drawer in Dashboard.jsx takes
+       over navigation duties at that breakpoint.
+     • Every other rule is byte-for-byte identical to the uploaded file.
+   ============================================================================= */
+
 @import url('../../themes/variables.css');
 
 .sideBar {
@@ -124,4 +134,19 @@
 .sideBarProfileRole {
     font-size: 12px;
     color: #9CA3AF;
+}
+
+/* =============================================================================
+   RESPONSIVE — hide sidebar on mobile
+   The Dashboard.jsx mobile drawer takes over navigation at this breakpoint.
+   We hide rather than remove from the DOM so App.jsx needs no changes.
+   ============================================================================= */
+
+@media (max-width: 768px) {
+
+    .sideBar {
+        /* Take it fully out of flow — the drawer replaces it visually */
+        display: none;
+    }
+
 }
