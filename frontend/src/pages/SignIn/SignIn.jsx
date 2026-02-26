@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import "./SignIn.css";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   return (
     <div className="si-container">
@@ -42,7 +44,16 @@ function SignIn() {
         {/* Sign in button */}
         <button
           className="si-btn-primary"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => {
+            const userData = {
+              name: "Ladunni Tegbe",
+              designation: "Business Owner",
+              email: "ladunni@email.com",
+            };
+
+            login(userData);
+            navigate("/dashboard");
+          }}
         >
           Sign in
         </button>

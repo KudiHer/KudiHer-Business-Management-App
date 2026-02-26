@@ -1,15 +1,17 @@
-
+// =============================================================================
+// src/pages/Transactions/Transactions.jsx
+// =============================================================================
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import TransactionCard from "../../components/TransactionCard/TransactionCard";
 import {
   getTransactions,
-  addTransaction,
   editTransaction,
   removeTransaction,
 } from "../../services/TransactionService";
 import "./Transactions.css";
 
-// ── Default empty form ────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 const EMPTY_FORM = {
   title:    "",
   amount:   "",
@@ -22,7 +24,7 @@ const EMPTY_FORM = {
 const FILTER_OPTIONS = ["All", "income", "expense", "loan"];
 
 // =============================================================================
-// SkeletonCard — shimmer placeholder while loading
+// SkeletonCard
 // =============================================================================
 function SkeletonCard() {
   return (
@@ -34,34 +36,27 @@ function SkeletonCard() {
 }
 
 // =============================================================================
-// TransactionModal — handles both Create and Edit in one component
+// TransactionModal — Edit only (create now lives on dedicated pages)
 // =============================================================================
 function TransactionModal({ initial, onClose, onSave }) {
   const [form,   setForm]   = useState(initial ?? EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error,  setError]  = useState(null);
 
-  // If `initial` has an _id it's an edit; otherwise it's a create
-  const isEditing = !!initial?._id;
-
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim())               { setError("Description is required.");  return; }
-    if (!form.amount || Number(form.amount) <= 0) { setError("Enter a valid amount."); return; }
+    if (!form.title.trim())                        { setError("Description is required.");  return; }
+    if (!form.amount || Number(form.amount) <= 0)  { setError("Enter a valid amount.");     return; }
 
     setSaving(true);
     setError(null);
-
     try {
       const payload = { ...form, amount: Number(form.amount) };
-      const saved   = isEditing
-        ? await editTransaction(initial._id, payload)
-        : await addTransaction(payload);
-
-      onSave(saved, isEditing);
+      const saved   = await editTransaction(initial._id, payload);
+      onSave(saved);
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -69,24 +64,14 @@ function TransactionModal({ initial, onClose, onSave }) {
     }
   };
 
-  // Clicking the dark backdrop closes the modal
-  const handleBackdrop = (e) => {
-    if (e.target === e.currentTarget) onClose();
-  };
+  const handleBackdrop = (e) => { if (e.target === e.currentTarget) onClose(); };
 
   return (
     <div className="modal-backdrop" onClick={handleBackdrop} role="dialog" aria-modal="true">
       <div className="modal">
 
-        {/* Header */}
         <div className="modal__header">
-          <h2 className="modal__title">
-            {isEditing
-              ? "Edit Transaction"
-              : form.type === "income"  ? "New Income"
-              : form.type === "expense" ? "New Expense"
-              : "Record Loan"}
-          </h2>
+          <h2 className="modal__title">Edit Transaction</h2>
           <button className="modal__close" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
@@ -94,30 +79,11 @@ function TransactionModal({ initial, onClose, onSave }) {
 
         <form onSubmit={handleSubmit} className="modal__form" noValidate>
 
-          {/* Type selector — shown only on create so type stays fixed on edit */}
-          {!isEditing && (
-            <div className="modal__field">
-              <span className="modal__label">Type</span>
-              <div className="modal__type-row">
-                {["income", "expense", "loan"].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    className={`modal__type-btn modal__type-btn--${t}${form.type === t ? " modal__type-btn--active" : ""}`}
-                    onClick={() => setForm((p) => ({ ...p, type: t }))}
-                  >
-                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Description */}
           <div className="modal__field">
-            <label className="modal__label" htmlFor="txn-title">Description</label>
+            <label className="modal__label" htmlFor="edit-title">Description</label>
             <input
-              id="txn-title"
+              id="edit-title"
               name="title"
               className="modal__input"
               placeholder="e.g. Customer purchase – Rice (50kg)"
@@ -131,9 +97,9 @@ function TransactionModal({ initial, onClose, onSave }) {
           {/* Amount + Date */}
           <div className="modal__row">
             <div className="modal__field">
-              <label className="modal__label" htmlFor="txn-amount">Amount (₦)</label>
+              <label className="modal__label" htmlFor="edit-amount">Amount (₦)</label>
               <input
-                id="txn-amount"
+                id="edit-amount"
                 name="amount"
                 type="number"
                 min="1"
@@ -146,9 +112,9 @@ function TransactionModal({ initial, onClose, onSave }) {
               />
             </div>
             <div className="modal__field">
-              <label className="modal__label" htmlFor="txn-date">Date</label>
+              <label className="modal__label" htmlFor="edit-date">Date</label>
               <input
-                id="txn-date"
+                id="edit-date"
                 name="date"
                 type="date"
                 className="modal__input"
@@ -161,9 +127,9 @@ function TransactionModal({ initial, onClose, onSave }) {
           {/* Category + Method */}
           <div className="modal__row">
             <div className="modal__field">
-              <label className="modal__label" htmlFor="txn-category">Category</label>
+              <label className="modal__label" htmlFor="edit-category">Category</label>
               <input
-                id="txn-category"
+                id="edit-category"
                 name="category"
                 className="modal__input"
                 placeholder="e.g. Sales, Utilities…"
@@ -172,9 +138,9 @@ function TransactionModal({ initial, onClose, onSave }) {
               />
             </div>
             <div className="modal__field">
-              <label className="modal__label" htmlFor="txn-method">Payment method</label>
+              <label className="modal__label" htmlFor="edit-method">Payment method</label>
               <select
-                id="txn-method"
+                id="edit-method"
                 name="method"
                 className="modal__input modal__select"
                 value={form.method}
@@ -189,19 +155,14 @@ function TransactionModal({ initial, onClose, onSave }) {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="modal__footer">
-            <button type="button" className="modal__cancel" onClick={onClose}>
-              Cancel
-            </button>
+            <button type="button" className="modal__cancel" onClick={onClose}>Cancel</button>
             <button
               type="submit"
-              className={`modal__submit modal__submit--${form.type}`}
+              className="modal__submit modal__submit--income"
               disabled={saving}
             >
-              {saving
-                ? <span className="modal__spinner" />
-                : isEditing ? "Save changes" : `Add ${form.type}`}
+              {saving ? <span className="modal__spinner" /> : "Save changes"}
             </button>
           </div>
 
@@ -215,16 +176,16 @@ function TransactionModal({ initial, onClose, onSave }) {
 // Transactions Page
 // =============================================================================
 export default function Transactions() {
+  const navigate = useNavigate();
+
   const [transactions, setTransactions] = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
   const [deletingId,   setDeletingId]   = useState(null);
+  const [editModal,    setEditModal]    = useState(null); // transaction object | null
 
   const [search,     setSearch]     = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
-
-  // modal: null = closed | { initial: object }
-  const [modal, setModal] = useState(null);
 
   // ── Fetch on mount ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -234,7 +195,7 @@ export default function Transactions() {
       setLoading(true);
       setError(null);
       try {
-        const data = await getTransactions(); // GET /api/transactions
+        const data = await getTransactions();
         if (!cancelled) setTransactions(data);
       } catch (err) {
         if (!cancelled) setError(err.message || "Failed to load transactions.");
@@ -263,18 +224,10 @@ export default function Transactions() {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
-  const openNew  = (type) => setModal({ initial: { ...EMPTY_FORM, type } });
-  const openEdit = (tx)   => setModal({ initial: { ...tx, amount: String(tx.amount) } });
-  const closeModal = ()   => setModal(null);
-
-  /** Merge server response into state — no extra fetch needed */
-  const handleSave = (saved, isEditing) => {
-    setTransactions((prev) =>
-      isEditing
-        ? prev.map((t) => (t._id === saved._id ? saved : t))
-        : [saved, ...prev]
-    );
-    closeModal();
+  /** After a successful edit, merge the updated record into local state */
+  const handleEditSave = (saved) => {
+    setTransactions((prev) => prev.map((t) => (t._id === saved._id ? saved : t)));
+    setEditModal(null);
   };
 
   /** DELETE /api/transactions/:id */
@@ -302,16 +255,17 @@ export default function Transactions() {
           <p className="txn-page__subtitle">Track every Naira in and out of your business</p>
         </div>
 
+        {/* Navigate to dedicated Add Income / Add Expense pages */}
         <div className="txn-page__actions">
           <button
             className="txn-page__btn txn-page__btn--income"
-            onClick={() => openNew("income")}
+            onClick={() => navigate("/add-income")}
           >
             + Income
           </button>
           <button
             className="txn-page__btn txn-page__btn--expense"
-            onClick={() => openNew("expense")}
+            onClick={() => navigate("/add-expense")}
           >
             + Expense
           </button>
@@ -382,7 +336,7 @@ export default function Transactions() {
             <li key={tx._id} className="txn-page__list-item">
               <TransactionCard
                 transaction={tx}
-                onEdit={openEdit}
+                onEdit={(t) => setEditModal(t)}
                 onDelete={handleDelete}
                 deleting={deletingId === tx._id}
               />
@@ -391,12 +345,12 @@ export default function Transactions() {
         </ul>
       )}
 
-      {/* ── Modal ── */}
-      {modal && (
+      {/* ── Edit modal ── */}
+      {editModal && (
         <TransactionModal
-          initial={modal.initial}
-          onClose={closeModal}
-          onSave={handleSave}
+          initial={{ ...editModal, amount: String(editModal.amount) }}
+          onClose={() => setEditModal(null)}
+          onSave={handleEditSave}
         />
       )}
 

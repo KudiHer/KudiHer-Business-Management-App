@@ -8,6 +8,8 @@ import SignIn from "./pages/SignIn/SignIn";
 import BusinessSetup from "./pages/BusinessSetup/BusinessSetup";
 import Transactions  from "./pages/Transactions/Transactions";
 import { AuthProvider } from './context/AuthContext';
+import AddIncome        from "./pages/AddIncome/AddIncome";    
+import AddExpense       from "./pages/AddExpense/AddExpense"; 
 
 function App() {
   return (
@@ -37,6 +39,26 @@ function App() {
           </main>
         }
       />
+      <Route
+              path="/add-income"
+              element={
+                <main className="appContainer">
+                  <SideBar />
+                  <AddIncome />
+                </main>
+              }
+            />
+      
+            {/* ← NEW: Add Expense page */}
+            <Route
+              path="/add-expense"
+              element={
+                <main className="appContainer">
+                  <SideBar />
+                  <AddExpense />
+                </main>
+              }
+            />
     </Routes>
     </AuthProvider>
       );

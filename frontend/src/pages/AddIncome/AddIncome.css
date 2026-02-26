@@ -1,0 +1,356 @@
+/* =============================================================================
+   src/pages/AddIncome/AddIncome.css
+   Matches the design token system used in Transactions.css / TransactionCard.css
+   ============================================================================= */
+
+/* ── Design tokens (mirrors Transactions.css) ─────────────────────────────── */
+:root {
+  --green-primary:   #1a9e6e;
+  --green-dark:      #168a5f;
+  --green-light-bg:  #e8f7f1;
+  --green-ring:      rgba(26, 158, 110, 0.12);
+  --page-bg:         #E9FBF2;
+  --card-bg:         #ffffff;
+  --border-light:    #e2e4ea;
+  --border-input:    #dde0e6;
+  --text-primary:    #111111;
+  --text-secondary:  #444444;
+  --text-muted:      #999999;
+  --text-placeholder:#bbbbbb;
+  --red-text:        #c0392b;
+  --red-bg:          #fdecea;
+  --red-border:      #f5c6c2;
+  --radius-card:     18px;
+  --radius-input:    10px;
+  --radius-btn:      10px;
+}
+
+/* ── Page shell ───────────────────────────────────────────────────────────── */
+.add-income-page {
+  flex: 1;
+  min-height: 100vh;
+  background: var(--page-bg);
+  overflow-y: auto;
+}
+
+.add-income-page__inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 36px 28px 48px;
+}
+
+/* ── Back button ──────────────────────────────────────────────────────────── */
+.add-income-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-primary);
+  font-family: inherit;
+  padding: 0;
+  margin-bottom: 20px;
+  transition: color 0.15s;
+}
+.add-income-page__back:hover {
+  color: var(--green-dark);
+}
+.add-income-page__back svg {
+  transition: transform 0.15s;
+}
+.add-income-page__back:hover svg {
+  transform: translateX(-3px);
+}
+
+/* ── Page heading ─────────────────────────────────────────────────────────── */
+.add-income-page__heading {
+  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.add-income-page__subheading {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ── White form card ──────────────────────────────────────────────────────── */
+.add-income-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* ── Banners (success / error) ────────────────────────────────────────────── */
+.add-income-card__banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 1px solid;
+}
+
+.add-income-card__banner--success {
+  background: var(--green-light-bg);
+  border-color: #b2dfcf;
+  color: var(--green-dark);
+}
+
+.add-income-card__banner--error {
+  background: var(--red-bg);
+  border-color: var(--red-border);
+  color: var(--red-text);
+}
+
+/* ── Form body ────────────────────────────────────────────────────────────── */
+.add-income-form {
+  padding: 24px 22px 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Full-width fields */
+.add-income-form__field--full {
+  grid-column: 1 / -1;
+}
+
+/* ── Label ────────────────────────────────────────────────────────────────── */
+.add-income-form__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.add-income-form__label span.required {
+  color: #e05252;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.add-income-form__label span.optional {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+
+/* ── Input wrapper (for prefix icon) ─────────────────────────────────────── */
+.add-income-form__input-wrap {
+  position: relative;
+}
+
+.add-income-form__prefix {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+.add-income-form__icon-right {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Base input / select / textarea ──────────────────────────────────────── */
+.add-income-form__input,
+.add-income-form__select,
+.add-income-form__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1.5px solid var(--border-input);
+  border-radius: var(--radius-input);
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.add-income-form__input::placeholder,
+.add-income-form__textarea::placeholder {
+  color: var(--text-placeholder);
+}
+
+.add-income-form__input:focus,
+.add-income-form__select:focus,
+.add-income-form__textarea:focus {
+  border-color: var(--green-primary);
+  box-shadow: 0 0 0 3px var(--green-ring);
+}
+
+/* Prefix offset */
+.add-income-form__input--prefix {
+  padding-left: 28px;
+}
+
+/* Calendar icon offset */
+.add-income-form__input--icon-right {
+  padding-right: 40px;
+}
+
+/* ── Select ───────────────────────────────────────────────────────────────── */
+.add-income-form__select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+  cursor: pointer;
+}
+
+.add-income-form__select--placeholder {
+  color: var(--text-placeholder);
+}
+
+/* ── Textarea ─────────────────────────────────────────────────────────────── */
+.add-income-form__textarea {
+  resize: none;
+  line-height: 1.5;
+}
+
+/* ── Form footer ──────────────────────────────────────────────────────────── */
+.add-income-form__footer {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 8px;
+  border-top: 1px solid var(--border-light);
+  margin-top: 4px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.add-income-form__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 26px;
+  border-radius: var(--radius-btn);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  white-space: nowrap;
+  border: 2px solid transparent;
+}
+
+.add-income-form__btn:active {
+  transform: scale(0.98);
+}
+
+.add-income-form__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Primary — filled green */
+.add-income-form__btn--primary {
+  background: var(--green-primary);
+  color: #ffffff;
+  border-color: var(--green-primary);
+}
+.add-income-form__btn--primary:hover:not(:disabled) {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+
+/* Secondary — outlined green */
+.add-income-form__btn--secondary {
+  background: transparent;
+  color: var(--green-primary);
+  border-color: var(--green-primary);
+}
+.add-income-form__btn--secondary:hover:not(:disabled) {
+  background: var(--green-light-bg);
+}
+
+/* ── Spinner ──────────────────────────────────────────────────────────────── */
+.add-income-form__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ai-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.add-income-form__btn--secondary .add-income-form__spinner {
+  border-color: rgba(26, 158, 110, 0.3);
+  border-top-color: var(--green-primary);
+}
+
+@keyframes ai-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Required footnote ────────────────────────────────────────────────────── */
+.add-income-page__footnote {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  padding-left: 2px;
+}
+
+.add-income-page__footnote span {
+  color: #e05252;
+  font-weight: 700;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .add-income-page__inner {
+    padding: 20px 16px 36px;
+  }
+
+  .add-income-form {
+    grid-template-columns: 1fr;
+    padding: 20px 18px 8px;
+  }
+
+  .add-income-form__field--full {
+    grid-column: 1;
+  }
+
+  .add-income-form__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .add-income-form__btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

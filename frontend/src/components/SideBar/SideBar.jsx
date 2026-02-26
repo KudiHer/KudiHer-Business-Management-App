@@ -10,16 +10,10 @@ import ProfitabilityIcon from "../../assets/images/sideBarImages/profitabilityIc
 import SettingsIcon from "../../assets/images/sideBarImages/settingsIcon.svg?react";
 import ProfileImageIcon from "../../assets/images/sideBarImages/profileImageIcon.svg?react";
 import { NavLink } from "react-router-dom";
-// import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
-export function SideBar({
-    title = "Ada's Mart",
-    designation = "Store Owner"
-} = {}) {
-//   const [activeTab, setActiveTab] = useState("Dashboard");
-//     const handleTabClick = (tab) => {
-//         setActiveTab(tab);
-//     };
+export function SideBar() {
+  const { user } = useAuth();
 
     return (  
         <>
@@ -87,8 +81,13 @@ export function SideBar({
                     <li className="sideBarProfile">
     <ProfileImageIcon className="sideBarProfileIcon" />
     <div className="sideBarProfileText">
-        <span className="sideBarProfileName">{title}</span>
-        <span className="sideBarProfileRole">{designation}</span>
+        <span className="sideBarProfileName">
+  {user?.name || "User"}
+</span>
+
+<span className="sideBarProfileRole">
+  {user?.designation || ""}
+</span>
     </div>
 </li>
                 </ul>
