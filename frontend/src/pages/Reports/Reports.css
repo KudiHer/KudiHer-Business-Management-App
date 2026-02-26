@@ -1,0 +1,231 @@
+/* Reports.css */
+.reports-page {
+  padding: 28px 32px;
+  max-width: 800px;
+}
+
+.reports-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.reports-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.reports-subtitle {
+  font-size: 14px;
+  color: #9CA3AF;
+  margin: 0;
+}
+
+.btn-loan-ready {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #E9FBF2;
+  border: 1.5px solid #A7F3D0;
+  color: #059669;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 11px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-loan-ready:hover {
+  background: #D1FAE5;
+  border-color: #10B981;
+}
+
+/* Grid */
+.reports-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.report-card {
+  background: #E9FBF2;
+  border: 1.5px solid #A7F3D0;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.report-card:hover {
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+  transform: translateY(-2px);
+}
+
+.loan-card {
+  border-color: #10B981;
+}
+
+.report-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.report-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.report-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #059669;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.report-card-desc {
+  font-size: 12.5px;
+  color: #6B7280;
+  margin: 0;
+  line-height: 1.55;
+  flex: 1;
+}
+
+.report-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.btn-generate {
+  background: #ffffff;
+  border: 1.5px solid #D1D5DB;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 88px;
+  justify-content: center;
+}
+
+.btn-generate:hover:not(:disabled) {
+  border-color: #10B981;
+  color: #10B981;
+  background: #F0FDF9;
+}
+
+.btn-generate.loading {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.btn-generate.done {
+  border-color: #10B981;
+  color: #10B981;
+  background: #F0FDF9;
+}
+
+.spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid #A7F3D0;
+  border-top-color: #10B981;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.pdf-action {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #9CA3AF;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.pdf-action:hover { color: #10B981; }
+
+/* Loan Advantage Section */
+.loan-advantage-section {
+  background: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 28px 32px;
+}
+
+.loan-advantage-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.loan-advantage-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.loan-advantage-desc {
+  font-size: 13.5px;
+  color: #6B7280;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.loan-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.loan-feature-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1.5px solid #A7F3D0;
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #374151;
+}
+
+@media (max-width: 600px) {
+  .reports-page { padding: 20px 16px; }
+  .reports-grid { grid-template-columns: 1fr; }
+  .reports-header { flex-direction: column; }
+}
