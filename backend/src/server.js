@@ -4,6 +4,8 @@ const cors = require('cors');
 const connectDB = require('./config/db.js');
 const authRoutes = require('./routes/authRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const productRoutes = require('./routes/productRoutes');
+const saleRoutes = require('./routes/saleRoutes');
 
 
 // Load env vars
@@ -29,6 +31,8 @@ app.get('/', (req, res) => {
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/sales', saleRoutes);
 
 const PORT = process.env.PORT || 5000;
 

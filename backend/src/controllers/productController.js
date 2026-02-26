@@ -12,6 +12,18 @@ const validateProductPayload = (payload, isPartial = false) => {
     }
   }
 
+  if (!isPartial || hasOwn(payload, 'category')) {
+    if (typeof payload.category !== 'string' || !payload.category.trim()) {
+      errors.category = 'Category is required';
+    }
+  }
+
+  if (!isPartial || hasOwn(payload, 'unit')) {
+    if (typeof payload.unit !== 'string' || !payload.unit.trim()) {
+      errors.unit = 'Unit is required';
+    }
+  }
+
   if (!isPartial || hasOwn(payload, 'sku')) {
     if (typeof payload.sku !== 'string' || !payload.sku.trim()) {
       errors.sku = 'SKU is required';
@@ -93,9 +105,11 @@ const formatMongooseValidationErrors = (error) => {
 // @access  Private
 exports.createProduct = async (req, res) => {
   try {
-    const { name, sku, costPrice, sellingPrice, quantityInStock } = req.body;
+    const { name, category, unit, sku, costPrice, sellingPrice, quantityInStock } = req.body;
     const errors = validateProductPayload({
       name,
+      category,
+      unit,
       sku,
       costPrice,
       sellingPrice,
@@ -113,6 +127,8 @@ exports.createProduct = async (req, res) => {
     const product = await Product.create({
       user: req.user.id,
       name: name.trim(),
+      category: category.trim(),
+      unit: unit.trim(),
       sku: sku.trim().toUpperCase(),
       costPrice,
       sellingPrice,
@@ -222,7 +238,16 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    const allowedFields = ['name', 'sku', 'costPrice', 'sellingPrice', 'quantityInStock', 'isActive'];
+    const allowedFields = [
+      'name',
+      'category',
+      'unit',
+      'sku',
+      'costPrice',
+      'sellingPrice',
+      'quantityInStock',
+      'isActive'
+    ];
     const updates = {};
 
     allowedFields.forEach((field) => {
@@ -243,6 +268,14 @@ exports.updateProduct = async (req, res) => {
 
     if (hasOwn(updates, 'name') && typeof updates.name === 'string') {
       updates.name = updates.name.trim();
+    }
+
+    if (hasOwn(updates, 'category') && typeof updates.category === 'string') {
+      updates.category = updates.category.trim();
+    }
+
+    if (hasOwn(updates, 'unit') && typeof updates.unit === 'string') {
+      updates.unit = updates.unit.trim();
     }
 
     if (hasOwn(updates, 'sku') && typeof updates.sku === 'string') {

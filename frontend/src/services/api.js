@@ -152,6 +152,108 @@ export async function deleteTransaction(id) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// PRODUCTS (STOCK ITEMS)
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * GET /api/products
+ * Returns: { success, count, data: Product[] }
+ */
+export async function fetchProducts() {
+  const data = await apiFetch("/api/products");
+  return {
+    count: data?.count ?? 0,
+    items: Array.isArray(data?.data) ? data.data : [],
+    raw: data,
+  };
+}
+
+/**
+ * GET /api/products/:id
+ * Returns: { success, data: Product }
+ */
+export async function fetchProductById(id) {
+  const data = await apiFetch(`/api/products/${id}`);
+  return data?.data ?? data;
+}
+
+/**
+ * POST /api/products
+ * Required body keys:
+ * { name, category, unit, sku, costPrice, sellingPrice, quantityInStock }
+ */
+export async function createProduct(payload) {
+  const data = await apiFetch("/api/products", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return data?.data ?? data;
+}
+
+/**
+ * PUT /api/products/:id
+ * Body: partial updates supported
+ */
+export async function updateProduct(id, payload) {
+  const data = await apiFetch(`/api/products/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return data?.data ?? data;
+}
+
+/**
+ * DELETE /api/products/:id
+ */
+export async function deleteProduct(id) {
+  return apiFetch(`/api/products/${id}`, { method: "DELETE" });
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SALES (DEDUCTS STOCK)
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * POST /api/sales
+ * Body:
+ * {
+ *   items: [{ productId, quantity }],
+ *   saleDate?: ISOString
+ * }
+ */
+export async function createSale(payload) {
+  const data = await apiFetch("/api/sales", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return data?.data ?? data;
+}
+
+/**
+ * GET /api/sales?from=ISODate&to=ISODate
+ */
+export async function fetchSales(params = {}) {
+  const search = new URLSearchParams();
+  if (params.from) search.set("from", params.from);
+  if (params.to) search.set("to", params.to);
+  const query = search.toString() ? `?${search.toString()}` : "";
+
+  const data = await apiFetch(`/api/sales${query}`);
+  return {
+    count: data?.count ?? 0,
+    items: Array.isArray(data?.data) ? data.data : [],
+    raw: data,
+  };
+}
+
+/**
+ * GET /api/sales/summary
+ */
+export async function fetchSalesSummary() {
+  return apiFetch("/api/sales/summary");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // COMPUTED HELPERS  (derived from real transaction data)
 // ═════════════════════════════════════════════════════════════════════════════
 
