@@ -10,6 +10,13 @@ import Transactions  from "./pages/Transactions/Transactions";
 import { AuthProvider } from './context/AuthContext';
 import AddIncome        from "./pages/AddIncome/AddIncome";    
 import AddExpense       from "./pages/AddExpense/AddExpense"; 
+import InventoryAI      from "./pages/InventoryAI/InventoryAI";
+import Stock            from "./pages/Stock/Stock";
+import Reports         from "./pages/Reports/Reports";
+import CashFlow         from "./pages/CashFlow/CashFlow";
+import Profitability      from "./pages/Profitability/Profitability";
+import Settings         from "./pages/Settings/Settings";
+
 
 function App() {
   return (
@@ -49,7 +56,7 @@ function App() {
               }
             />
       
-            {/* ← NEW: Add Expense page */}
+            
             <Route
               path="/add-expense"
               element={
@@ -59,6 +66,60 @@ function App() {
                 </main>
               }
             />
+      <Route
+        path="/inventoryai"
+        element={ 
+          <main className="appContainer">
+            <SideBar />
+            <InventoryAI />
+          </main>
+        }
+      />
+      <Route
+        path="/stock"
+        element={ 
+          <main className="appContainer">
+            <SideBar />
+            <Stock />
+          </main>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <main className="appContainer">
+            <SideBar />
+            <Reports />
+          </main>
+        }
+      />
+      <Route
+        path="/cashflow"
+        element={
+          <main className="appContainer">
+            <SideBar />
+            <CashFlow />
+          </main>
+        }
+      />
+      <Route
+        path="/profitability"
+        element={
+          <main className="appContainer">
+            <SideBar />
+            <Profitability />
+          </main>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <main className="appContainer">
+            <SideBar />
+            <Settings />
+          </main>
+        }
+      />
     </Routes>
     </AuthProvider>
       );
