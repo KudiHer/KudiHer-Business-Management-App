@@ -16,6 +16,7 @@ import Dashboard     from "./pages/Dashboard/Dashboard";
 import Transactions  from "./pages/Transactions/Transactions";
 import AddIncome     from "./pages/AddIncome/AddIncome";
 import AddExpense    from "./pages/AddExpense/AddExpense";
+import Loans              from "./pages/Loans/Loans"; 
 import InventoryAI   from "./pages/InventoryAi/InventoryAi";
 import Stock         from "./pages/Stock/Stock";
 import Reports       from "./pages/Reports/Reports";
@@ -59,6 +60,12 @@ function App() {
         <Route path="/add-expense" element={
           <AppLayout title="Add Expense">
             <AddExpense />
+          </AppLayout>
+        } />
+
+        <Route path="/loans" element={
+          <AppLayout title="Loans">
+            <Loans />
           </AppLayout>
         } />
 

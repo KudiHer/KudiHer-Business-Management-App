@@ -1,30 +1,7 @@
-// =============================================================================
-// src/pages/Dashboard/Dashboard.jsx
-//
-// This file is the pure Dashboard page component.
-// All mobile navigation (hamburger top-bar, drawer, backdrop) has been moved
-// to src/components/AppLayout/AppLayout.jsx which wraps this page in App.jsx.
-//
-// What was removed vs the previous version:
-//   ✗  import { NavLink }            — not needed here
-//   ✗  All SVG icon imports           — owned by AppLayout
-//   ✗  useState for drawerOpen        — owned by AppLayout
-//   ✗  const NAV_ITEMS array          — owned by AppLayout
-//   ✗  <header className={mobileTopBar}> block
-//   ✗  <div className={drawerBackdrop}> block
-//   ✗  <nav className={drawer}> block
-//   ✗  const closeDrawer / firstName  — not needed
-//
-// What is kept (byte-for-byte from the original uploaded Dashboard.jsx):
-//   ✓  useFetch / computeSummary logic
-//   ✓  period state + TABS / TAB_LABELS / CARD_META
-//   ✓  getGreeting()
-//   ✓  Desktop header (greeting + tabs + logout)
-//   ✓  mobileSubHeader (subtitle + wide tabs — Dashboard-specific)
-//   ✓  summaryRow, ActionButtons, LowStockAlert, CashFlowChart, RecentTransactions
-// =============================================================================
+
 
 import { useState }       from "react";
+import { useNavigate } from "react-router-dom";
 import SummaryCard        from "../../components/SummaryCard/SummaryCard";
 import ActionButtons      from "../../components/ActionButtons/ActionButtons";
 import LowStockAlert      from "../../components/LowStockAlert/LowStockAlert";
@@ -46,6 +23,8 @@ const CARD_META = [
   { key: "netProfit",     title: "Net profit",      color: "profit"  },
 ];
 
+
+
 /** Returns "Good morning / afternoon / evening" based on local time */
 function getGreeting() {
   const h = new Date().getHours();
@@ -59,6 +38,10 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
   const [period, setPeriod] = useState("today");
 
+  const navigate = useNavigate();
+  const handleAddIncome = () => navigate("/add-income");
+const handleAddExpense = () => navigate("/add-expense");
+const handleRecordLoan = () => navigate("/loans");
   // ── Single source-of-truth fetch ─────────────────────────────────────────
   const {
     data: transactions,
@@ -66,6 +49,11 @@ export default function Dashboard() {
     error,
     refetch,
   } = useFetch(fetchTransactions, []);
+
+const handleLogout = () => {
+    logout();         // Clear auth state/tokens
+    navigate("/");    // Redirect to WelcomePage
+  };
 
   const summary  = transactions ? computeSummary(period, transactions) : null;
   const greeting = getGreeting();
@@ -103,16 +91,13 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <button onClick={logout} className={styles.logoutBtn} title="Sign out">
+          <button onClick={handleLogout} className={styles.logoutBtn} title="Sign out">
             ⎋ Logout
           </button>
         </div>
       </div>
 
-      {/* ── Mobile sub-header: subtitle + full-width period tabs ────────────
-          Visible only on mobile. The desktop header above is hidden instead.
-          This is Dashboard-specific content — it lives here, not AppLayout,
-          because no other page needs it.                                   ── */}
+     
       <div className={styles.mobileSubHeader}>
         <p className={styles.subGreeting}>
           Here is your business overview for{" "}
@@ -161,7 +146,12 @@ export default function Dashboard() {
       </div>
 
       {/* ── Action Buttons ── */}
-      <ActionButtons onActionComplete={refetch} />
+      <ActionButtons
+      onActionComplete={refetch}
+      onAddIncome={() => navigate("/add-income")}
+      onAddExpense={() => navigate("/add-expense")}
+      onRecordLoan={handleRecordLoan}
+    />
 
       {/* ── Low Stock Alert ── */}
       <LowStockAlert />
@@ -183,3 +173,5 @@ export default function Dashboard() {
     </main>
   );
 }
+
+

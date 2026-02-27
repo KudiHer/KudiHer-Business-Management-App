@@ -23,6 +23,9 @@ const EMPTY_FORM = {
 
 const FILTER_OPTIONS = ["All", "income", "expense", "loan"];
 
+// Helper to handle inconsistent ID naming from different API services
+const getTxId = (tx) => tx._id || tx.id;
+
 // =============================================================================
 // SkeletonCard
 // =============================================================================
@@ -36,7 +39,7 @@ function SkeletonCard() {
 }
 
 // =============================================================================
-// TransactionModal — Edit only (create now lives on dedicated pages)
+// TransactionModal — Edit only
 // =============================================================================
 function TransactionModal({ initial, onClose, onSave }) {
   const [form,   setForm]   = useState(initial ?? EMPTY_FORM);
@@ -48,14 +51,16 @@ function TransactionModal({ initial, onClose, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim())                        { setError("Description is required.");  return; }
+    if (!form.title?.trim())                       { setError("Description is required.");  return; }
     if (!form.amount || Number(form.amount) <= 0)  { setError("Enter a valid amount.");     return; }
 
     setSaving(true);
     setError(null);
     try {
       const payload = { ...form, amount: Number(form.amount) };
-      const saved   = await editTransaction(initial._id, payload);
+      // Use helper to ensure we have the correct ID for the API call
+      const id = getTxId(initial);
+      const saved = await editTransaction(id, payload);
       onSave(saved);
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
@@ -69,7 +74,6 @@ function TransactionModal({ initial, onClose, onSave }) {
   return (
     <div className="modal-backdrop" onClick={handleBackdrop} role="dialog" aria-modal="true">
       <div className="modal">
-
         <div className="modal__header">
           <h2 className="modal__title">Edit Transaction</h2>
           <button className="modal__close" onClick={onClose} aria-label="Close">✕</button>
@@ -78,15 +82,13 @@ function TransactionModal({ initial, onClose, onSave }) {
         {error && <div className="modal__error">⚠ {error}</div>}
 
         <form onSubmit={handleSubmit} className="modal__form" noValidate>
-
-          {/* Description */}
           <div className="modal__field">
             <label className="modal__label" htmlFor="edit-title">Description</label>
             <input
               id="edit-title"
               name="title"
               className="modal__input"
-              placeholder="e.g. Customer purchase – Rice (50kg)"
+              placeholder="e.g. Customer purchase"
               value={form.title}
               onChange={handleChange}
               required
@@ -94,7 +96,6 @@ function TransactionModal({ initial, onClose, onSave }) {
             />
           </div>
 
-          {/* Amount + Date */}
           <div className="modal__row">
             <div className="modal__field">
               <label className="modal__label" htmlFor="edit-amount">Amount (₦)</label>
@@ -102,10 +103,7 @@ function TransactionModal({ initial, onClose, onSave }) {
                 id="edit-amount"
                 name="amount"
                 type="number"
-                min="1"
-                step="0.01"
                 className="modal__input"
-                placeholder="0"
                 value={form.amount}
                 onChange={handleChange}
                 required
@@ -124,7 +122,6 @@ function TransactionModal({ initial, onClose, onSave }) {
             </div>
           </div>
 
-          {/* Category + Method */}
           <div className="modal__row">
             <div className="modal__field">
               <label className="modal__label" htmlFor="edit-category">Category</label>
@@ -132,7 +129,6 @@ function TransactionModal({ initial, onClose, onSave }) {
                 id="edit-category"
                 name="category"
                 className="modal__input"
-                placeholder="e.g. Sales, Utilities…"
                 value={form.category}
                 onChange={handleChange}
               />
@@ -157,15 +153,10 @@ function TransactionModal({ initial, onClose, onSave }) {
 
           <div className="modal__footer">
             <button type="button" className="modal__cancel" onClick={onClose}>Cancel</button>
-            <button
-              type="submit"
-              className="modal__submit modal__submit--income"
-              disabled={saving}
-            >
+            <button type="submit" className="modal__submit modal__submit--income" disabled={saving}>
               {saving ? <span className="modal__spinner" /> : "Save changes"}
             </button>
           </div>
-
         </form>
       </div>
     </div>
@@ -182,15 +173,13 @@ export default function Transactions() {
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
   const [deletingId,   setDeletingId]   = useState(null);
-  const [editModal,    setEditModal]    = useState(null); // transaction object | null
+  const [editModal,    setEditModal]    = useState(null);
 
   const [search,     setSearch]     = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
 
-  // ── Fetch on mount ────────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-
     async function load() {
       setLoading(true);
       setError(null);
@@ -203,40 +192,40 @@ export default function Transactions() {
         if (!cancelled) setLoading(false);
       }
     }
-
     load();
     return () => { cancelled = true; };
   }, []);
 
-  // ── Client-side filter + sort ─────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return [...transactions]
       .filter((t) => typeFilter === "All" || t.type === typeFilter)
-      .filter((t) =>
-        !q ||
-        (t.title    ?? "").toLowerCase().includes(q) ||
-        (t.category ?? "").toLowerCase().includes(q) ||
-        (t.method   ?? "").toLowerCase().includes(q)
-      )
+      .filter((t) => {
+        if (!q) return true;
+        // Search across multiple possible fields to prevent "missing title" issues
+        const textToSearch = [
+          t.title, 
+          t.description, 
+          t.category, 
+          t.method, 
+          t.item
+        ].join(" ").toLowerCase();
+        return textToSearch.includes(q);
+      })
       .sort((a, b) => new Date(b.date ?? b.createdAt) - new Date(a.date ?? a.createdAt));
   }, [transactions, search, typeFilter]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
-
-  /** After a successful edit, merge the updated record into local state */
   const handleEditSave = (saved) => {
-    setTransactions((prev) => prev.map((t) => (t._id === saved._id ? saved : t)));
+    setTransactions((prev) => prev.map((t) => (getTxId(t) === getTxId(saved) ? saved : t)));
     setEditModal(null);
   };
 
-  /** DELETE /api/transactions/:id */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this transaction? This cannot be undone.")) return;
     setDeletingId(id);
     try {
       await removeTransaction(id);
-      setTransactions((prev) => prev.filter((t) => t._id !== id));
+      setTransactions((prev) => prev.filter((t) => getTxId(t) !== id));
     } catch (err) {
       alert(err.message || "Delete failed. Please try again.");
     } finally {
@@ -244,83 +233,59 @@ export default function Transactions() {
     }
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="txn-page">
-
-      {/* ── Header ── */}
       <div className="txn-page__header">
         <div className="txn-page__title-block">
           <h1 className="txn-page__title">Transactions</h1>
           <p className="txn-page__subtitle">Track every Naira in and out of your business</p>
         </div>
 
-        {/* Navigate to dedicated Add Income / Add Expense pages */}
         <div className="txn-page__actions">
-          <button
-            className="txn-page__btn txn-page__btn--income"
-            onClick={() => navigate("/add-income")}
-          >
+          <button className="txn-page__btn txn-page__btn--income" onClick={() => navigate("/add-income")}>
             + Income
           </button>
-          <button
-            className="txn-page__btn txn-page__btn--expense"
-            onClick={() => navigate("/add-expense")}
-          >
+          <button className="txn-page__btn txn-page__btn--expense" onClick={() => navigate("/add-expense")}>
             + Expense
           </button>
         </div>
       </div>
 
-      {/* ── Search + filter ── */}
       <div className="txn-page__toolbar">
         <div className="txn-page__search-wrap">
-          <svg className="txn-page__search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <svg className="txn-page__search-icon" viewBox="0 0 20 20" fill="none">
             <circle cx="9" cy="9" r="6" stroke="#bbb" strokeWidth="1.8"/>
             <path d="M13.5 13.5L17 17" stroke="#bbb" strokeWidth="1.8" strokeLinecap="round"/>
           </svg>
           <input
             className="txn-page__search"
             type="search"
-            placeholder="Search transactions"
+            placeholder="Search descriptions or categories"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search transactions"
           />
         </div>
 
-        <select
-          className="txn-page__filter"
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          aria-label="Filter by type"
-        >
+        <select className="txn-page__filter" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
           {FILTER_OPTIONS.map((o) => (
-            <option key={o} value={o}>
-              {o.charAt(0).toUpperCase() + o.slice(1)}
-            </option>
+            <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>
           ))}
         </select>
       </div>
 
-      {/* ── Loading ── */}
       {loading && (
         <div className="txn-page__list">
           {Array.from({ length: 7 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       )}
 
-      {/* ── Error ── */}
       {!loading && error && (
         <div className="txn-page__error">
           <p>⚠ {error}</p>
-          <button className="txn-page__retry" onClick={() => window.location.reload()}>
-            Try again
-          </button>
+          <button className="txn-page__retry" onClick={() => window.location.reload()}>Try again</button>
         </div>
       )}
 
-      {/* ── Empty ── */}
       {!loading && !error && filtered.length === 0 && (
         <div className="txn-page__empty">
           {search || typeFilter !== "All"
@@ -329,23 +294,24 @@ export default function Transactions() {
         </div>
       )}
 
-      {/* ── List ── */}
       {!loading && !error && filtered.length > 0 && (
         <ul className="txn-page__list">
-          {filtered.map((tx) => (
-            <li key={tx._id} className="txn-page__list-item">
-              <TransactionCard
-                transaction={tx}
-                onEdit={(t) => setEditModal(t)}
-                onDelete={handleDelete}
-                deleting={deletingId === tx._id}
-              />
-            </li>
-          ))}
+          {filtered.map((tx) => {
+            const id = getTxId(tx);
+            return (
+              <li key={id} className="txn-page__list-item">
+                <TransactionCard
+                  transaction={tx}
+                  onEdit={(t) => setEditModal(t)}
+                  onDelete={() => handleDelete(id)}
+                  deleting={deletingId === id}
+                />
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      {/* ── Edit modal ── */}
       {editModal && (
         <TransactionModal
           initial={{ ...editModal, amount: String(editModal.amount) }}
@@ -353,7 +319,6 @@ export default function Transactions() {
           onSave={handleEditSave}
         />
       )}
-
     </div>
   );
 }
