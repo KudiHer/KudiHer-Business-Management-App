@@ -81,7 +81,7 @@ export default function RecentTransactions({ transactions = [], loading = false,
               return (
                 <li key={id} className={styles.item}>
                   <div className={styles.info}>
-                    <span className={styles.desc}>{tx.description}</span>
+                    <span className={styles.desc}>{tx.title || tx.description}</span>
                     <span className={styles.meta}>
                       {displayCategory(tx)}
                       {(tx.date ?? tx.createdAt) && (
