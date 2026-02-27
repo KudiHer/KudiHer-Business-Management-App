@@ -13,6 +13,16 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Product name is required'],
       trim: true
     },
+    category: {
+      type: String,
+      required: [true, 'Category is required'],
+      trim: true
+    },
+    unit: {
+      type: String,
+      required: [true, 'Unit is required'],
+      trim: true
+    },
     sku: {
       type: String,
       required: [true, 'SKU is required'],
