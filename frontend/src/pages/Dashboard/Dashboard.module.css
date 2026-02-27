@@ -1,3 +1,24 @@
+/* =============================================================================
+   src/pages/Dashboard/Dashboard.module.css
+   
+   Pure page-content styles for the Dashboard.
+   All mobile navigation CSS (mobileTopBar, hamburgerBtn, drawer, drawerBackdrop,
+   drawerLink, drawerProfile, etc.) has been removed from this file — those
+   classes now live exclusively in AppLayout.css.
+   
+   What remains here:
+     • .main              — page shell (flex column, bg, padding)
+     • .header            — desktop greeting + tabs + logout row
+     • .mobileSubHeader   — Dashboard-only mobile subtitle + period tabs
+     • .summaryRow        — 3-col card grid → horizontal scroll on mobile
+     • .skeletonCard / .errorMsg / .retryBtn
+   ============================================================================= */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PAGE SHELL
+   Rendered inside AppLayout's .appLayout__content div which is flex:1.
+   No min-height: 100vh needed — the layout shell handles full height.
+───────────────────────────────────────────────────────────────────────────── */
 .main {
   flex: 1;
   background: #f0f2f5;
@@ -7,14 +28,25 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  box-sizing: border-box;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESKTOP HEADER  —  greeting (left) | tabs + logout (right)
+   Hidden on mobile: the AppLayout top-bar shows the page title there.
+───────────────────────────────────────────────────────────────────────────── */
 .header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.greetingBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .greeting {
@@ -25,12 +57,24 @@
   font-family: 'Sora', sans-serif;
 }
 
+.userName {
+  /* inherits from .greeting */
+}
+
 .subGreeting {
   font-size: 14px;
   color: #888;
   margin: 0;
 }
 
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Desktop period tabs */
 .tabs {
   display: flex;
   gap: 4px;
@@ -49,40 +93,191 @@
   font-weight: 500;
   cursor: pointer;
   color: #666;
+  font-family: inherit;
   transition: all 0.2s ease;
 }
-
-.tab:hover {
-  color: #333;
-}
+.tab:hover { color: #333; }
 
 .tabActive {
   background: #fff;
   color: #1a1a1a;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   font-weight: 600;
 }
 
+/* Logout button */
+.logoutBtn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e4ea;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.logoutBtn:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE SUB-HEADER  (Dashboard-specific — only this page needs it)
+   Hidden on desktop. Shows on mobile below the AppLayout top-bar.
+   Contains: "Here is your business overview for…" + full-width tab strip.
+───────────────────────────────────────────────────────────────────────────── */
+.mobileSubHeader {
+  display: none;        /* shown via mobile media query below */
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Full-width tab strip */
+.mobileTabs {
+  display: flex;
+  background: #e8e9ec;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mobileTab {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #888;
+  font-family: inherit;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.mobileTabActive {
+  background: #ffffff;
+  color: #111;
+  font-weight: 700;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SUMMARY CARDS  (3-col grid on desktop)
+───────────────────────────────────────────────────────────────────────────── */
 .summaryRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   SKELETON + ERROR STATES
+───────────────────────────────────────────────────────────────────────────── */
+.skeletonCard {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 18px 20px;
+}
+
+.errorMsg {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #fdecea;
+  border-radius: 12px;
+  color: #c0392b;
+  font-size: 14px;
+}
+
+.retryBtn {
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: 1.5px solid #c0392b;
+  background: transparent;
+  color: #c0392b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.retryBtn:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RESPONSIVE — MOBILE  ≤768px
+───────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+
+  /* ── Hide desktop header, show mobile sub-header ── */
+  .header          { display: none; }
+  .mobileSubHeader { display: flex; }
+
+  /* ── Reduce page padding ── */
   .main {
-    padding: 20px 16px;
+    padding: 16px 16px 32px;
+    gap: 16px;
+    min-height: unset;
   }
 
-  .header {
-    flex-direction: column;
-  }
-
+  /* ── Summary cards: 3-col grid → horizontal scroll strip ── */
   .summaryRow {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 12px;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .summaryRow::-webkit-scrollbar { display: none; }
+
+  /* Show ~2 cards, half of third visible → invites scroll */
+  .summaryRow > * {
+    flex: 0 0 calc(46% - 6px);
+    min-width: 140px;
   }
 
-  .greeting {
-    font-size: 22px;
+  .skeletonCard {
+    flex: 0 0 calc(46% - 6px);
+    min-width: 140px;
   }
+
+  .errorMsg {
+    flex: 0 0 100%;
+    min-width: unset;
+  }
+
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RESPONSIVE — SMALL MOBILE  ≤420px
+───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 420px) {
+
+  .main { padding: 12px 12px 28px; }
+
+  /* Show ~1.5 cards on very narrow screens */
+  .summaryRow > * {
+    flex: 0 0 72%;
+    min-width: 130px;
+  }
+  .skeletonCard {
+    flex: 0 0 72%;
+    min-width: 130px;
+  }
+
 }

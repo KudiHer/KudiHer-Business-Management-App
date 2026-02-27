@@ -1,26 +1,52 @@
-import { useState } from "react";
-// import { SideBar } from "../../components/SideBar/SideBar";
-import SummaryCard from "../../components/SummaryCard/SummaryCard";
-import ActionButtons from "../../components/ActionButtons/ActionButtons";
-import LowStockAlert from "../../components/LowStockAlert/LowStockAlert";
-import CashFlowChart from "../../components/CashFlowChart/CashFlowChart";
-import RecentTransactions from "../../components/RecentTransactions/RecentTransactions";
-import Skeleton from "../../components/Skeleton/Skeleton";
-import { useFetch } from "../../hooks/useFetch";
-import { fetchTransactions, computeSummary } from "../../services/api";
-import { useAuth } from "../../context/AuthContext";
-import styles from "./Dashboard.module.css";
+// =============================================================================
+// src/pages/Dashboard/Dashboard.jsx
+//
+// This file is the pure Dashboard page component.
+// All mobile navigation (hamburger top-bar, drawer, backdrop) has been moved
+// to src/components/AppLayout/AppLayout.jsx which wraps this page in App.jsx.
+//
+// What was removed vs the previous version:
+//   ✗  import { NavLink }            — not needed here
+//   ✗  All SVG icon imports           — owned by AppLayout
+//   ✗  useState for drawerOpen        — owned by AppLayout
+//   ✗  const NAV_ITEMS array          — owned by AppLayout
+//   ✗  <header className={mobileTopBar}> block
+//   ✗  <div className={drawerBackdrop}> block
+//   ✗  <nav className={drawer}> block
+//   ✗  const closeDrawer / firstName  — not needed
+//
+// What is kept (byte-for-byte from the original uploaded Dashboard.jsx):
+//   ✓  useFetch / computeSummary logic
+//   ✓  period state + TABS / TAB_LABELS / CARD_META
+//   ✓  getGreeting()
+//   ✓  Desktop header (greeting + tabs + logout)
+//   ✓  mobileSubHeader (subtitle + wide tabs — Dashboard-specific)
+//   ✓  summaryRow, ActionButtons, LowStockAlert, CashFlowChart, RecentTransactions
+// =============================================================================
 
-const TABS = ["today", "week", "month"];
+import { useState }       from "react";
+import SummaryCard        from "../../components/SummaryCard/SummaryCard";
+import ActionButtons      from "../../components/ActionButtons/ActionButtons";
+import LowStockAlert      from "../../components/LowStockAlert/LowStockAlert";
+import CashFlowChart      from "../../components/CashFlowChart/CashFlowChart";
+import RecentTransactions from "../../components/RecentTransactions/RecentTransactions";
+import Skeleton           from "../../components/Skeleton/Skeleton";
+import { useFetch }       from "../../hooks/useFetch";
+import { fetchTransactions, computeSummary } from "../../services/api";
+import { useAuth }        from "../../context/AuthContext";
+import styles             from "./Dashboard.module.css";
+
+// ── Constants — identical to original ─────────────────────────────────────────
+const TABS       = ["today", "week", "month"];
 const TAB_LABELS = { today: "Today", week: "Week", month: "Month" };
 
 const CARD_META = [
-  { key: "totalIncome", title: "Total Income", color: "income" },
-  { key: "totalExpenses", title: "Total expenses", color: "expense" },
-  { key: "netProfit", title: "Net profit", color: "profit" },
+  { key: "totalIncome",   title: "Total Income",   color: "income"  },
+  { key: "totalExpenses", title: "Total expenses",  color: "expense" },
+  { key: "netProfit",     title: "Net profit",      color: "profit"  },
 ];
 
-/** Returns "Good morning / afternoon / evening" depending on local time */
+/** Returns "Good morning / afternoon / evening" based on local time */
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -28,13 +54,12 @@ function getGreeting() {
   return "Good evening";
 }
 
+// =============================================================================
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [period, setPeriod] = useState("today");
 
-  // ── Single source-of-truth fetch: GET /api/transactions ──────────────────
-  // All derived data (summary cards, cash-flow chart, recent list) is computed
-  // client-side from this one response so we only make one network call.
+  // ── Single source-of-truth fetch ─────────────────────────────────────────
   const {
     data: transactions,
     loading,
@@ -42,105 +67,119 @@ export default function Dashboard() {
     refetch,
   } = useFetch(fetchTransactions, []);
 
-  // Compute summary figures for the selected period
-  const summary = transactions ? computeSummary(period, transactions) : null;
+  const summary  = transactions ? computeSummary(period, transactions) : null;
+  const greeting = getGreeting();
+
   return (
-    <>
-      {/* <SideBar /> */}
-      <main className={styles.main}>
-        {/* ── Header ── */}
-        <div className={styles.header}>
-          <div className={styles.greetingBlock}>
-            {/* Dynamic greeting + first name from the authenticated user object */}
-            <h1 className={styles.greeting}>
-              {getGreeting()},{" "}
-              <span className={styles.userName}>
-                {user?.fullName || "User"}
-              </span>
-            </h1>
-            <p className={styles.subGreeting}>
-              Here is your business overview for{" "}
-              <strong>{TAB_LABELS[period].toLowerCase()}</strong>
-            </p>
-          </div>
+    <main className={styles.main}>
 
-          <div className={styles.headerRight}>
-            {/* Period tabs */}
-            <div className={styles.tabs}>
-              {TABS.map((tab) => (
-                <button
-                  key={tab}
-                  className={`${styles.tab} ${period === tab ? styles.tabActive : ""}`}
-                  onClick={() => setPeriod(tab)}
-                >
-                  {TAB_LABELS[tab]}
-                </button>
-              ))}
-            </div>
-
-            {/* Logout button */}
-            <button
-              onClick={logout}
-              className={styles.logoutBtn}
-              title="Sign out"
-            >
-              ⎋ Logout
-            </button>
-          </div>
+      {/* ── Desktop header: greeting + period tabs + logout ─────────────────
+          Hidden on mobile via Dashboard.module.css media query.
+          On mobile the AppLayout top-bar shows the page title instead.    ── */}
+      <div className={styles.header}>
+        <div className={styles.greetingBlock}>
+          <h1 className={styles.greeting}>
+            {greeting},{" "}
+            <span className={styles.userName}>
+              {user?.fullName || "User"}
+            </span>
+          </h1>
+          <p className={styles.subGreeting}>
+            Here is your business overview for{" "}
+            <strong>{TAB_LABELS[period].toLowerCase()}</strong>
+          </p>
         </div>
 
-        {/* ── Summary Cards ── */}
-        <div className={styles.summaryRow}>
-          {loading ? (
-            CARD_META.map((c) => (
-              <div key={c.key} className={styles.skeletonCard}>
-                <Skeleton height="13px" width="50%" />
-                <Skeleton height="30px" width="68%" style={{ marginTop: 10 }} />
-                <Skeleton height="12px" width="44%" style={{ marginTop: 8 }} />
-              </div>
-            ))
-          ) : error ? (
-            <div className={styles.errorMsg}>
-              <span>⚠ {error}</span>
-              <button onClick={refetch} className={styles.retryBtn}>
-                Retry
+        <div className={styles.headerRight}>
+          <div className={styles.tabs}>
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                className={`${styles.tab}${period === tab ? ` ${styles.tabActive}` : ""}`}
+                onClick={() => setPeriod(tab)}
+              >
+                {TAB_LABELS[tab]}
               </button>
-            </div>
-          ) : (
-            CARD_META.map((c) => (
-              <SummaryCard
-                key={c.key}
-                title={c.title}
-                color={c.color}
-                amount={`₦${summary[c.key].amount.toLocaleString()}`}
-                trend={summary[c.key].trend}
-                trendType={summary[c.key].trendType}
-              />
-            ))
-          )}
+            ))}
+          </div>
+
+          <button onClick={logout} className={styles.logoutBtn} title="Sign out">
+            ⎋ Logout
+          </button>
         </div>
+      </div>
 
-        {/* ── Action Buttons ── */}
-        {/* onActionComplete re-fetches transactions so all derived views refresh */}
-        <ActionButtons onActionComplete={refetch} />
+      {/* ── Mobile sub-header: subtitle + full-width period tabs ────────────
+          Visible only on mobile. The desktop header above is hidden instead.
+          This is Dashboard-specific content — it lives here, not AppLayout,
+          because no other page needs it.                                   ── */}
+      <div className={styles.mobileSubHeader}>
+        <p className={styles.subGreeting}>
+          Here is your business overview for{" "}
+          <strong>{TAB_LABELS[period].toLowerCase()}</strong>
+        </p>
+        <div className={styles.mobileTabs}>
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              className={`${styles.mobileTab}${period === tab ? ` ${styles.mobileTabActive}` : ""}`}
+              onClick={() => setPeriod(tab)}
+            >
+              {TAB_LABELS[tab]}
+            </button>
+          ))}
+        </div>
+      </div>
 
-        {/* ── Low Stock Alert ── */}
-        <LowStockAlert />
+      {/* ── Summary Cards ── */}
+      <div className={styles.summaryRow}>
+        {loading ? (
+          CARD_META.map((c) => (
+            <div key={c.key} className={styles.skeletonCard}>
+              <Skeleton height="13px" width="50%" />
+              <Skeleton height="30px" width="68%" style={{ marginTop: 10 }} />
+              <Skeleton height="12px" width="44%" style={{ marginTop: 8 }} />
+            </div>
+          ))
+        ) : error ? (
+          <div className={styles.errorMsg}>
+            <span>⚠ {error}</span>
+            <button onClick={refetch} className={styles.retryBtn}>Retry</button>
+          </div>
+        ) : (
+          CARD_META.map((c) => (
+            <SummaryCard
+              key={c.key}
+              title={c.title}
+              color={c.color}
+              amount={`₦${summary[c.key].amount.toLocaleString()}`}
+              trend={summary[c.key].trend}
+              trendType={summary[c.key].trendType}
+            />
+          ))
+        )}
+      </div>
 
-        {/* ── Cash Flow Chart — receives period + raw transactions for computation ── */}
-        <CashFlowChart
-          period={period}
-          transactions={transactions ?? []}
-          loading={loading}
-        />
+      {/* ── Action Buttons ── */}
+      <ActionButtons onActionComplete={refetch} />
 
-        {/* ── Recent Transactions — receives raw list, sorts & slices itself ── */}
-        <RecentTransactions
-          transactions={transactions ?? []}
-          loading={loading}
-          refetch={refetch}
-        />
-      </main>
-    </>
+      {/* ── Low Stock Alert ── */}
+      <LowStockAlert />
+
+      {/* ── Cash Flow Chart ── */}
+      <CashFlowChart
+        period={period}
+        transactions={transactions ?? []}
+        loading={loading}
+      />
+
+      {/* ── Recent Transactions ── */}
+      <RecentTransactions
+        transactions={transactions ?? []}
+        loading={loading}
+        refetch={refetch}
+      />
+
+    </main>
   );
 }
