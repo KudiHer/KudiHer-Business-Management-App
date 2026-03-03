@@ -1,7 +1,9 @@
+
+
 const BASE_URL = "https://kudiher-business-management-app.onrender.com";
 
-// 1. Get the token. Ensure "token" matches the key used by your login logic.
-const getToken = () => localStorage.getItem("token");
+// ── Token key standardised to "kudiher_token" — matches api.js ───────────────
+const getToken = () => localStorage.getItem("kudiher_token");
 
 async function request(path, options = {}) {
   const token = getToken();
@@ -14,7 +16,7 @@ async function request(path, options = {}) {
 
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`, // Attaching the JWT here
+    "Authorization": `Bearer ${token}`,
     ...options.headers,
   };
 
@@ -49,9 +51,8 @@ export async function getTransactions() {
  * POST /api/transactions/expense
  */
 export async function addTransaction(data) {
-  // Determine which endpoint to hit based on the type
   const typePath = data.type === "income" ? "income" : "expense";
-  
+
   return request(`/api/transactions/${typePath}`, {
     method: "POST",
     body: JSON.stringify(data),

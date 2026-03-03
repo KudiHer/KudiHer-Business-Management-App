@@ -1,56 +1,43 @@
-import { createContext, useContext, useState, useCallback } from "react";
-import {
-  login as apiLogin,
-  register as apiRegister,
-  logout as apiLogout,
-  userStorage,
-  tokenStorage,
-} from "../services/api";
 
-// ── Context ───────────────────────────────────────────────────────────────────
+
+import { createContext, useContext, useState } from "react";
+import { userStorage, tokenStorage, logoutRequest } from "../services/api";
+
 const AuthContext = createContext(null);
 
-// ── Provider ──────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }) {
-  // Rehydrate from localStorage so the session survives a page refresh
-  const [user,  setUser]  = useState(() => userStorage.get());
-  const [token, setToken] = useState(() => tokenStorage.get());
+  
+  const [user, setUserState] = useState(() => userStorage.get());
 
-  const handleAuthSuccess = (data) => {
-    setUser(data.user);
-    setToken(data.token);
+ 
+  const setUser = (userObj) => {
+    userStorage.set(userObj);
+    setUserState(userObj);
   };
 
-  const login = useCallback(async (credentials) => {
-    const data = await apiLogin(credentials);
-    handleAuthSuccess(data);
-    return data;
-  }, []);
+ 
+  const clearUser = () => {
+    logoutRequest();          
+    setUserState(null);
+  };
 
-  const register = useCallback(async (credentials) => {
-    const data = await apiRegister(credentials);
-    handleAuthSuccess(data);
-    return data;
-  }, []);
+  
+  const logout = () => {
+    clearUser();
+  };
 
-  const logout = useCallback(() => {
-    apiLogout();
-    setUser(null);
-    setToken(null);
-  }, []);
-
-  const isAuthenticated = !!(user && token);
+ 
+  const login = (userObj) => setUser(userObj);
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, setUser, logout, clearUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
   return ctx;
 }

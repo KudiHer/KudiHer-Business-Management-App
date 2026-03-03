@@ -1,7 +1,7 @@
 
 
 import { useState }       from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate }    from "react-router-dom";
 import SummaryCard        from "../../components/SummaryCard/SummaryCard";
 import ActionButtons      from "../../components/ActionButtons/ActionButtons";
 import LowStockAlert      from "../../components/LowStockAlert/LowStockAlert";
@@ -9,11 +9,11 @@ import CashFlowChart      from "../../components/CashFlowChart/CashFlowChart";
 import RecentTransactions from "../../components/RecentTransactions/RecentTransactions";
 import Skeleton           from "../../components/Skeleton/Skeleton";
 import { useFetch }       from "../../hooks/useFetch";
-import { fetchTransactions, computeSummary } from "../../services/api";
+import { fetchTransactions, computeSummary, tokenStorage } from "../../services/api";
 import { useAuth }        from "../../context/AuthContext";
 import styles             from "./Dashboard.module.css";
 
-// ── Constants — identical to original ─────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 const TABS       = ["today", "week", "month"];
 const TAB_LABELS = { today: "Today", week: "Week", month: "Month" };
 
@@ -23,9 +23,6 @@ const CARD_META = [
   { key: "netProfit",     title: "Net profit",      color: "profit"  },
 ];
 
-
-
-/** Returns "Good morning / afternoon / evening" based on local time */
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -33,44 +30,56 @@ function getGreeting() {
   return "Good evening";
 }
 
+// ── Token-guarded fetch ───────────────────────────────────────────────────────
+// Throws a friendly message before hitting the network if no session exists,
+// so the Dashboard error state shows something useful instead of a raw 401.
+async function guardedFetchTransactions() {
+  if (!tokenStorage.get()) {
+    throw new Error("Session expired. Please sign in again.");
+  }
+  return fetchTransactions();
+}
+
 // =============================================================================
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [period, setPeriod] = useState("today");
-
   const navigate = useNavigate();
-  const handleAddIncome = () => navigate("/add-income");
-const handleAddExpense = () => navigate("/add-expense");
-const handleRecordLoan = () => navigate("/loans");
-  // ── Single source-of-truth fetch ─────────────────────────────────────────
+
+  // ── Data fetch ────────────────────────────────────────────────────────────
   const {
     data: transactions,
     loading,
     error,
     refetch,
-  } = useFetch(fetchTransactions, []);
+  } = useFetch(guardedFetchTransactions, []);
 
-const handleLogout = () => {
-    logout();         // Clear auth state/tokens
-    navigate("/");    // Redirect to WelcomePage
+  // ── Logout ────────────────────────────────────────────────────────────────
+  // AuthContext.logout() calls logoutRequest() from api.js which removes
+  // both "kudiher_token" and "kudiher_user" from localStorage.
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
-  const summary  = transactions ? computeSummary(period, transactions) : null;
-  const greeting = getGreeting();
+  // ── Derived data ──────────────────────────────────────────────────────────
+  const summary     = transactions ? computeSummary(period, transactions) : null;
+  const greeting    = getGreeting();
 
+  // Backend User.js schema field is `fullName` — read that directly.
+  // Fallback chain handles any edge case where the object shape differs.
+  const displayName = user?.fullName ?? user?.name ?? "User";
+
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <main className={styles.main}>
 
-      {/* ── Desktop header: greeting + period tabs + logout ─────────────────
-          Hidden on mobile via Dashboard.module.css media query.
-          On mobile the AppLayout top-bar shows the page title instead.    ── */}
+      {/* ── Desktop header ── */}
       <div className={styles.header}>
         <div className={styles.greetingBlock}>
           <h1 className={styles.greeting}>
             {greeting},{" "}
-            <span className={styles.userName}>
-              {user?.fullName || "User"}
-            </span>
+            <span className={styles.userName}>{displayName}</span>
           </h1>
           <p className={styles.subGreeting}>
             Here is your business overview for{" "}
@@ -97,7 +106,7 @@ const handleLogout = () => {
         </div>
       </div>
 
-     
+      {/* ── Mobile sub-header (shown via CSS media query) ── */}
       <div className={styles.mobileSubHeader}>
         <p className={styles.subGreeting}>
           Here is your business overview for{" "}
@@ -147,11 +156,11 @@ const handleLogout = () => {
 
       {/* ── Action Buttons ── */}
       <ActionButtons
-      onActionComplete={refetch}
-      onAddIncome={() => navigate("/add-income")}
-      onAddExpense={() => navigate("/add-expense")}
-      onRecordLoan={handleRecordLoan}
-    />
+        onActionComplete={refetch}
+        onAddIncome={() => navigate("/add-income")}
+        onAddExpense={() => navigate("/add-expense")}
+        onRecordLoan={() => navigate("/loans")}
+      />
 
       {/* ── Low Stock Alert ── */}
       <LowStockAlert />
@@ -173,5 +182,3 @@ const handleLogout = () => {
     </main>
   );
 }
-
-

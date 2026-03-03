@@ -30,14 +30,10 @@ function App() {
     <AuthProvider>
       <Routes>
 
-        {/* ── Auth / onboarding routes — no sidebar, no AppLayout ── */}
         <Route path="/"               element={<WelcomePage />}   />
         <Route path="/create-account" element={<CreateAccount />} />
         <Route path="/signin"         element={<SignIn />}         />
         <Route path="/business-setup" element={<BusinessSetup />} />
-
-        {/* ── Authenticated app routes — all wrapped in AppLayout ──
-            The `title` prop is shown in the mobile top-bar on each page.  ── */}
 
         <Route path="/dashboard" element={
           <AppLayout title="Dashboard">

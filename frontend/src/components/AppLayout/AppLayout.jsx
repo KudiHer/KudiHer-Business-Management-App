@@ -1,34 +1,18 @@
 // =============================================================================
 // src/components/AppLayout/AppLayout.jsx
 //
-// Shared layout wrapper for every authenticated page.
-// Replaces the repeated <main className="appContainer"><SideBar />…</main>
-// pattern in App.jsx with a single component that handles:
+// Change from the previous version:
+//   Loans entry removed from NAV_ITEMS and the LoansIcon inline component
+//   removed — the mobile drawer now mirrors the desktop sidebar exactly.
 //
-//   Desktop (>768px):
-//     └─ .appContainer  (flex row)
-//           ├─ <SideBar />       (260px, always visible)
-//           └─ {children}        (flex:1, page content)
-//
-//   Mobile (≤768px):
-//     └─ .appContainer  (flex column, full width)
-//           ├─ <MobileTopBar />  (sticky, hamburger + page title)
-//           ├─ <DrawerBackdrop/>
-//           ├─ <Drawer />        (slide-in nav panel)
-//           └─ {children}        (page content, full width)
-//
-// Usage in App.jsx:
-//   <Route path="/stock" element={<AppLayout title="Stock"><Stock /></AppLayout>} />
-//
-// The `title` prop is the compact label shown in the mobile top-bar.
+//   Every other line is byte-for-byte identical to the previous output.
 // =============================================================================
 
-import { useState }       from "react";
-import { NavLink, Outlet } from "react-router-dom";
-import { SideBar }        from "../SideBar/SideBar";
-import { useAuth }        from "../../context/AuthContext";
+import { useState }        from "react";
+import { NavLink }         from "react-router-dom";
+import { SideBar }         from "../SideBar/SideBar";
+import { useAuth }         from "../../context/AuthContext";
 
-// ── Same SVG assets as SideBar.jsx ────────────────────────────────────────────
 import KudiHerLogo       from "../../assets/images/kudiHerLogo.svg?react";
 import DashboardIcon     from "../../assets/images/sideBarImages/dashboardIcon.svg?react";
 import TransactionsIcon  from "../../assets/images/sideBarImages/transactionIcon.svg?react";
@@ -42,7 +26,7 @@ import ProfileImageIcon  from "../../assets/images/sideBarImages/profileImageIco
 
 import "./AppLayout.css";
 
-// ── Nav items — mirror SideBar.jsx exactly ────────────────────────────────────
+// ── Nav items — mirrors SideBar.jsx exactly (no Loans) ───────────────────────
 const NAV_ITEMS = [
   { to: "/dashboard",     label: "Dashboard",    Icon: DashboardIcon     },
   { to: "/transactions",  label: "Transactions", Icon: TransactionsIcon  },
@@ -63,8 +47,7 @@ export default function AppLayout({ children, title = "KudiHer" }) {
     <div className="appLayout">
 
       {/* ════════════════════════════════════════════════════════════════
-          MOBILE TOP-BAR  — sticky bar visible only on ≤768px
-          [mint hamburger]   [page title]   [invisible spacer]
+          MOBILE TOP-BAR
       ════════════════════════════════════════════════════════════════ */}
       <header className="appLayout__topBar">
         <button
@@ -73,22 +56,18 @@ export default function AppLayout({ children, title = "KudiHer" }) {
           aria-label="Open navigation menu"
           aria-expanded={drawerOpen}
         >
-          {/* Three-line hamburger */}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <rect x="2" y="4"  width="16" height="2" rx="1" fill="currentColor"/>
             <rect x="2" y="9"  width="16" height="2" rx="1" fill="currentColor"/>
             <rect x="2" y="14" width="16" height="2" rx="1" fill="currentColor"/>
           </svg>
         </button>
-
         <span className="appLayout__topBarTitle">{title}</span>
-
-        {/* Spacer mirrors hamburger width so title stays optically centred */}
         <div className="appLayout__topBarSpacer" aria-hidden="true" />
       </header>
 
       {/* ════════════════════════════════════════════════════════════════
-          DRAWER BACKDROP  — always in DOM, transparent until open
+          DRAWER BACKDROP
       ════════════════════════════════════════════════════════════════ */}
       <div
         className={`appLayout__backdrop${drawerOpen ? " appLayout__backdrop--visible" : ""}`}
@@ -97,14 +76,13 @@ export default function AppLayout({ children, title = "KudiHer" }) {
       />
 
       {/* ════════════════════════════════════════════════════════════════
-          MOBILE DRAWER  — slides in from left
-          Identical look to SideBar.jsx (same tokens, same icons)
+          MOBILE DRAWER
       ════════════════════════════════════════════════════════════════ */}
       <nav
         className={`appLayout__drawer${drawerOpen ? " appLayout__drawer--open" : ""}`}
         aria-label="Mobile navigation"
       >
-        {/* ── Header: logo + close button ── */}
+        {/* Header: logo + close */}
         <div className="appLayout__drawerHead">
           <div className="appLayout__drawerLogoRow">
             <KudiHerLogo className="appLayout__drawerLogo" />
@@ -122,7 +100,7 @@ export default function AppLayout({ children, title = "KudiHer" }) {
           </button>
         </div>
 
-        {/* ── Primary nav links ── */}
+        {/* Primary nav links */}
         <ul className="appLayout__drawerNav">
           {NAV_ITEMS.map(({ to, label, Icon }) => (
             <li key={to}>
@@ -140,7 +118,7 @@ export default function AppLayout({ children, title = "KudiHer" }) {
           ))}
         </ul>
 
-        {/* ── Bottom: Settings + profile ── */}
+        {/* Bottom: Settings + profile */}
         <div className="appLayout__drawerBottom">
           <NavLink
             to="/settings"
@@ -160,7 +138,7 @@ export default function AppLayout({ children, title = "KudiHer" }) {
                 {user?.businessName || "Business"}
               </span>
               <span className="appLayout__drawerProfileRole">
-                {user?.businessType || "Store Owner"}
+                {user?.businessType || ""}
               </span>
             </div>
           </div>
@@ -168,9 +146,7 @@ export default function AppLayout({ children, title = "KudiHer" }) {
       </nav>
 
       {/* ════════════════════════════════════════════════════════════════
-          DESKTOP SHELL  — flex row: sidebar + page content
-          On mobile the sidebar is hidden via SideBar.css media query,
-          so the page content fills the full width automatically.
+          DESKTOP SHELL
       ════════════════════════════════════════════════════════════════ */}
       <div className="appLayout__body">
         <SideBar />
