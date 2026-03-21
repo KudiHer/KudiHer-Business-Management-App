@@ -34,6 +34,11 @@
   flex: 1;
   overflow-y: auto;
   min-width: 0;   /* prevents flex children from overflowing */
+  margin-left: 260px; 
+  
+  background-color: #f0f2f5; /* Consistent background for all pages */
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -285,6 +290,8 @@
   .appLayout__content {
     /* No extra padding here — each page controls its own padding */
     overflow-y: visible;
+    margin-left: 0;
+   
   }
 
 }
