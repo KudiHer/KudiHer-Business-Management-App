@@ -2,22 +2,12 @@
    src/pages/Dashboard/Dashboard.module.css
    
    Pure page-content styles for the Dashboard.
-   All mobile navigation CSS (mobileTopBar, hamburgerBtn, drawer, drawerBackdrop,
-   drawerLink, drawerProfile, etc.) has been removed from this file — those
-   classes now live exclusively in AppLayout.css.
-   
-   What remains here:
-     • .main              — page shell (flex column, bg, padding)
-     • .header            — desktop greeting + tabs + logout row
-     • .mobileSubHeader   — Dashboard-only mobile subtitle + period tabs
-     • .summaryRow        — 3-col card grid → horizontal scroll on mobile
-     • .skeletonCard / .errorMsg / .retryBtn
+   Refactored for Fixed Sidebar Layout and Dynamic Branding.
    ============================================================================= */
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PAGE SHELL
-   Rendered inside AppLayout's .appLayout__content div which is flex:1.
-   No min-height: 100vh needed — the layout shell handles full height.
+   Updated with margin-left to account for the fixed sidebar width.
 ───────────────────────────────────────────────────────────────────────────── */
 .main {
   flex: 1;
@@ -29,11 +19,11 @@
   flex-direction: column;
   gap: 20px;
   box-sizing: border-box;
+
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   DESKTOP HEADER  —  greeting (left) | tabs + logout (right)
-   Hidden on mobile: the AppLayout top-bar shows the page title there.
+   DESKTOP HEADER
 ───────────────────────────────────────────────────────────────────────────── */
 .header {
   display: flex;
@@ -57,8 +47,10 @@
   font-family: 'Sora', sans-serif;
 }
 
+/* FIX: DYNAMIC USERNAME COLOR 
+   Targets the span inside the greeting for the brand highlight */
 .userName {
-  /* inherits from .greeting */
+  color: #059669; /* KudiHer Brand Green */
 }
 
 .subGreeting {
@@ -125,17 +117,14 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MOBILE SUB-HEADER  (Dashboard-specific — only this page needs it)
-   Hidden on desktop. Shows on mobile below the AppLayout top-bar.
-   Contains: "Here is your business overview for…" + full-width tab strip.
+   MOBILE SUB-HEADER
 ───────────────────────────────────────────────────────────────────────────── */
 .mobileSubHeader {
-  display: none;        /* shown via mobile media query below */
+  display: none; 
   flex-direction: column;
   gap: 14px;
 }
 
-/* Full-width tab strip */
 .mobileTabs {
   display: flex;
   background: #e8e9ec;
@@ -169,7 +158,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SUMMARY CARDS  (3-col grid on desktop)
+   SUMMARY CARDS
 ───────────────────────────────────────────────────────────────────────────── */
 .summaryRow {
   display: grid;
@@ -212,28 +201,24 @@
   transition: all 0.15s;
   flex-shrink: 0;
 }
-.retryBtn:hover {
-  background: #c0392b;
-  color: #fff;
-}
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   RESPONSIVE — MOBILE  ≤768px
+   RESPONSIVE — MOBILE ≤768px
 ───────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-
-  /* ── Hide desktop header, show mobile sub-header ── */
-  .header          { display: none; }
-  .mobileSubHeader { display: flex; }
-
-  /* ── Reduce page padding ── */
+  /* FIX: Reset Margin-left on Mobile
+     Since the sidebar usually hides or moves, we remove the offset here. */
   .main {
+    margin-left: 0; 
     padding: 16px 16px 32px;
     gap: 16px;
     min-height: unset;
+       
   }
 
-  /* ── Summary cards: 3-col grid → horizontal scroll strip ── */
+  .header { display: none; }
+  .mobileSubHeader { display: flex; }
+
   .summaryRow {
     display: flex;
     flex-direction: row;
@@ -245,39 +230,20 @@
   }
   .summaryRow::-webkit-scrollbar { display: none; }
 
-  /* Show ~2 cards, half of third visible → invites scroll */
   .summaryRow > * {
     flex: 0 0 calc(46% - 6px);
     min-width: 140px;
   }
-
-  .skeletonCard {
-    flex: 0 0 calc(46% - 6px);
-    min-width: 140px;
-  }
-
-  .errorMsg {
-    flex: 0 0 100%;
-    min-width: unset;
-  }
-
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   RESPONSIVE — SMALL MOBILE  ≤420px
+   RESPONSIVE — SMALL MOBILE ≤420px
 ───────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 420px) {
-
   .main { padding: 12px 12px 28px; }
 
-  /* Show ~1.5 cards on very narrow screens */
   .summaryRow > * {
     flex: 0 0 72%;
     min-width: 130px;
   }
-  .skeletonCard {
-    flex: 0 0 72%;
-    min-width: 130px;
-  }
-
 }

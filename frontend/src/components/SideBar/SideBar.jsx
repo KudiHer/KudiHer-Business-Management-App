@@ -149,11 +149,11 @@ export function SideBar() {
                 <ProfileImageIcon className="sideBarProfileIcon" />
                 <div className="sideBarProfileText">
                   <span className="sideBarProfileName">
-                    {user?.businessName || "Business"}
-                  </span>
-                  <span className="sideBarProfileRole">
-                    {user?.businessType || ""}
-                  </span>
+  {user?.data?.businessName || user?.businessName || "Business"}
+</span>
+<span className="sideBarProfileRole">
+  {user?.data?.businessType || user?.businessType || ""}
+</span>
                 </div>
               </li>
             </ul>
