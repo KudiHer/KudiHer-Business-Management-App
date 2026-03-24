@@ -1,13 +1,9 @@
-// =============================================================================
-// src/pages/AddIncome/AddIncome.jsx
-// =============================================================================
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CalendarDays, CheckCircle2, Loader2 } from "lucide-react";
-import { addTransaction } from "../../services/TransactionService";
+import { useState }          from "react";
+import { useNavigate }       from "react-router-dom";
+import { ArrowLeft, CalendarDays, CheckCircle2 } from "lucide-react";
+import { addTransaction }    from "../../services/TransactionService";
 import "./AddIncome.css";
 
-// ── Options ───────────────────────────────────────────────────────────────────
 const INCOME_CATEGORIES = [
   "Sales",
   "Wholesale Order",
@@ -19,24 +15,22 @@ const INCOME_CATEGORIES = [
 
 const PAYMENT_METHODS = ["Cash", "Transfer", "POS", "Cheque", "Other"];
 
-// ── Empty form ────────────────────────────────────────────────────────────────
 const EMPTY = {
-  amount: "",
-  category: "",
+  amount:       "",
+  category:     "",
   customerName: "",
-  item: "",
-  method: "",
-  date: new Date().toISOString().slice(0, 10),
-  notes: "",
+  item:         "", // Now required by backend
+  method:       "", // Will be sent as paymentMethod
+  date:         new Date().toISOString().slice(0, 10),
+  notes:        "",
 };
 
-// =============================================================================
 export default function AddIncome() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ ...EMPTY });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [form,    setForm]    = useState({ ...EMPTY });
+  const [saving,  setSaving]  = useState(false);
+  const [error,   setError]   = useState(null);
   const [toastOk, setToastOk] = useState(false);
 
   const handleChange = (e) =>
@@ -46,30 +40,36 @@ export default function AddIncome() {
     if (!form.amount || Number(form.amount) <= 0)
       return "Please enter a valid amount.";
     if (!form.category) return "Please select a category.";
-    if (!form.method) return "Please select a payment method.";
-    if (!form.date) return "Please select a date.";
+    if (!form.item.trim())   return "Please enter an item name (e.g. Rice 50kg).";
+    if (!form.method)   return "Please select a payment method.";
+    if (!form.date)     return "Please select a date.";
     return null;
   };
 
-  const buildPayload = () => ({
-    type: "income",
-    amount: Number(form.amount),
-    category: form.category,
-    title: form.item || form.customerName || `Income: ${form.category}`,
-    customerName: form.customerName || "",
-    item: form.item || "",
-    method: form.method,
-    date: form.date,
-    notes: form.notes,
-  });
+  const buildPayload = () => {
+    // Build the additional notes for the 'description' field
+    const parts = [];
+    if (form.customerName) parts.push(`Customer: ${form.customerName}`);
+    if (form.notes)        parts.push(form.notes);
+
+    const description = parts.length > 0 ? parts.join(" | ") : `Sale of ${form.item}`;
+
+    return {
+      type: "income",
+      amount: Number(form.amount),
+      category: form.category,
+      item: form.item,           // Backend requirement 1
+      paymentMethod: form.method, // Backend requirement 2
+      description,
+      date: form.date,
+    };
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
     const err = validate();
-    if (err) {
-      setError(err);
-      return;
-    }
+    if (err) { setError(err); return; }
+
     setSaving(true);
     setError(null);
     try {
@@ -77,16 +77,15 @@ export default function AddIncome() {
       navigate("/transactions");
     } catch (err) {
       setError(err.message || "Failed to save income. Please try again.");
+    } finally {
       setSaving(false);
     }
   };
 
   const handleSaveAndAnother = async () => {
     const err = validate();
-    if (err) {
-      setError(err);
-      return;
-    }
+    if (err) { setError(err); return; }
+
     setSaving(true);
     setError(null);
     try {
@@ -94,6 +93,7 @@ export default function AddIncome() {
       setForm({ ...EMPTY, date: new Date().toISOString().slice(0, 10) });
       setToastOk(true);
       setTimeout(() => setToastOk(false), 3000);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError(err.message || "Failed to save income. Please try again.");
     } finally {
@@ -104,6 +104,7 @@ export default function AddIncome() {
   return (
     <div className="add-income-page">
       <div className="add-income-page__inner">
+
         <button
           type="button"
           className="add-income-page__back"
@@ -134,6 +135,7 @@ export default function AddIncome() {
 
           <form onSubmit={handleSave} noValidate>
             <div className="add-income-form">
+
               {/* Amount */}
               <div className="add-income-form__field--full">
                 <label htmlFor="inc-amount" className="add-income-form__label">
@@ -142,44 +144,43 @@ export default function AddIncome() {
                 <div className="add-income-form__input-wrap">
                   <span className="add-income-form__prefix">₦</span>
                   <input
-                    id="inc-amount"
-                    name="amount"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={form.amount}
-                    onChange={handleChange}
+                    id="inc-amount" name="amount" type="number"
+                    min="0" step="0.01" placeholder="0.00"
+                    value={form.amount} onChange={handleChange}
                     className="add-income-form__input add-income-form__input--prefix"
-                    autoFocus
-                    required
+                    autoFocus required
                   />
                 </div>
               </div>
 
+              {/* Item / Product */}
+              <div className="add-income-form__field--full">
+                <label htmlFor="inc-item" className="add-income-form__label">
+                  Item / Product Sold <span className="required">*</span>
+                </label>
+                <input
+                  id="inc-item" name="item" type="text"
+                  placeholder="e.g. Rice 50 kg"
+                  value={form.item} onChange={handleChange}
+                  className="add-income-form__input"
+                  required
+                />
+              </div>
+
               {/* Category */}
               <div>
-                <label
-                  htmlFor="inc-category"
-                  className="add-income-form__label"
-                >
+                <label htmlFor="inc-category" className="add-income-form__label">
                   Category <span className="required">*</span>
                 </label>
                 <select
-                  id="inc-category"
-                  name="category"
-                  value={form.category}
-                  onChange={handleChange}
+                  id="inc-category" name="category"
+                  value={form.category} onChange={handleChange}
                   className={`add-income-form__select${!form.category ? " add-income-form__select--placeholder" : ""}`}
                   required
                 >
-                  <option value="" disabled>
-                    Select category
-                  </option>
+                  <option value="" disabled>Select category</option>
                   {INCOME_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               </div>
@@ -190,71 +191,40 @@ export default function AddIncome() {
                   Payment Method <span className="required">*</span>
                 </label>
                 <select
-                  id="inc-method"
-                  name="method"
-                  value={form.method}
-                  onChange={handleChange}
+                  id="inc-method" name="method"
+                  value={form.method} onChange={handleChange}
                   className={`add-income-form__select${!form.method ? " add-income-form__select--placeholder" : ""}`}
                   required
                 >
-                  <option value="" disabled>
-                    Select method
-                  </option>
+                  <option value="" disabled>Select method</option>
                   {PAYMENT_METHODS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
+                    <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
               </div>
 
               {/* Customer Name */}
               <div>
-                <label
-                  htmlFor="inc-customer"
-                  className="add-income-form__label"
-                >
+                <label htmlFor="inc-customer" className="add-income-form__label">
                   Customer's Name <span className="optional">(Optional)</span>
                 </label>
                 <input
-                  id="inc-customer"
-                  name="customerName"
-                  type="text"
+                  id="inc-customer" name="customerName" type="text"
                   placeholder="e.g. Mrs Adebayo"
-                  value={form.customerName}
-                  onChange={handleChange}
-                  className="add-income-form__input"
-                />
-              </div>
-
-              {/* Item */}
-              <div>
-                <label htmlFor="inc-item" className="add-income-form__label">
-                  Item <span className="optional">(Optional)</span>
-                </label>
-                <input
-                  id="inc-item"
-                  name="item"
-                  type="text"
-                  placeholder="e.g. Rice 50 kg"
-                  value={form.item}
-                  onChange={handleChange}
+                  value={form.customerName} onChange={handleChange}
                   className="add-income-form__input"
                 />
               </div>
 
               {/* Date */}
-              <div className="add-income-form__field--full">
+              <div>
                 <label htmlFor="inc-date" className="add-income-form__label">
                   Date <span className="required">*</span>
                 </label>
                 <div className="add-income-form__input-wrap">
                   <input
-                    id="inc-date"
-                    name="date"
-                    type="date"
-                    value={form.date}
-                    onChange={handleChange}
+                    id="inc-date" name="date" type="date"
+                    value={form.date} onChange={handleChange}
                     className="add-income-form__input add-income-form__input--icon-right"
                     required
                   />
@@ -270,12 +240,9 @@ export default function AddIncome() {
                   Notes <span className="optional">(Optional)</span>
                 </label>
                 <textarea
-                  id="inc-notes"
-                  name="notes"
-                  rows={3}
+                  id="inc-notes" name="notes" rows={3}
                   placeholder="Any additional details…"
-                  value={form.notes}
-                  onChange={handleChange}
+                  value={form.notes} onChange={handleChange}
                   className="add-income-form__textarea"
                 />
               </div>
@@ -283,36 +250,24 @@ export default function AddIncome() {
               {/* Footer */}
               <div className="add-income-form__footer">
                 <button
-                  type="submit"
-                  disabled={saving}
+                  type="submit" disabled={saving}
                   className="add-income-form__btn add-income-form__btn--primary"
                 >
-                  {saving ? (
-                    <>
-                      <span className="add-income-form__spinner" /> Saving…
-                    </>
-                  ) : (
-                    "Save"
-                  )}
+                  {saving ? "Saving…" : "Save"}
                 </button>
-
                 <button
-                  type="button"
-                  disabled={saving}
+                  type="button" disabled={saving}
                   onClick={handleSaveAndAnother}
                   className="add-income-form__btn add-income-form__btn--secondary"
+                  style={{ border: "1px solid #059669", color: "#059669", background: "transparent" }}
                 >
-                  {saving && <span className="add-income-form__spinner" />}
                   Save &amp; Add Another
                 </button>
               </div>
+
             </div>
           </form>
         </div>
-
-        <p className="add-income-page__footnote">
-          Fields marked <span>*</span> are required.
-        </p>
       </div>
     </div>
   );

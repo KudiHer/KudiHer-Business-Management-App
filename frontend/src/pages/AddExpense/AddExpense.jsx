@@ -1,10 +1,10 @@
-// =============================================================================
-// src/pages/AddExpense/AddExpense.jsx
-// =============================================================================
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CalendarDays, UploadCloud, X, FileImage, CheckCircle2 } from "lucide-react";
-import { addTransaction } from "../../services/TransactionService";
+import { useState, useRef }  from "react";
+import { useNavigate }       from "react-router-dom";
+import {
+  ArrowLeft, CalendarDays, UploadCloud,
+  X, FileImage, CheckCircle2,
+} from "lucide-react";
+import { addTransaction }    from "../../services/TransactionService";
 import "./AddExpense.css";
 
 const EXPENSE_CATEGORIES = [
@@ -18,8 +18,8 @@ const EMPTY_FORM = {
   amount:      "",
   category:    "",
   vendor:      "",
-  description: "",
-  method:      "",
+  description: "", // This will be sent as 'item'
+  method:      "", // This will be sent as 'paymentMethod'
   date:        new Date().toISOString().slice(0, 10),
 };
 
@@ -27,7 +27,7 @@ export default function AddExpense() {
   const navigate  = useNavigate();
   const fileInput = useRef(null);
 
-  const [form, setForm] = useState({ ...EMPTY_FORM });
+  const [form,           setForm]           = useState({ ...EMPTY_FORM });
   const [receipt,        setReceipt]        = useState(null);
   const [receiptPreview, setReceiptPreview] = useState(null);
   const [dragOver,       setDragOver]       = useState(false);
@@ -62,24 +62,45 @@ export default function AddExpense() {
   const validate = () => {
     if (!form.amount || Number(form.amount) <= 0) return "Please enter a valid amount.";
     if (!form.category)                           return "Please select a category.";
-    if (!form.description.trim())                 return "Please enter a description.";
+    if (!form.description.trim())                 return "Please enter a description/item name.";
     if (!form.method)                             return "Please select a payment method.";
     return null;
   };
 
+  const buildFinalDescription = () => {
+    const parts = [];
+    if (form.vendor) parts.push(`Vendor: ${form.vendor}`);
+    // Adding method to description as a backup note
+    if (form.method) parts.push(`Via ${form.method}`);
+    return parts.length > 0 ? parts.join(" | ") : form.description;
+  };
+
+  // ── buildFormData (Multipart) ──────────────────────────────────────────────
   const buildFormData = () => {
     const data = new FormData();
-    data.append("type", "expense");
-    data.append("amount", form.amount);
-    data.append("category", form.category);
-    data.append("title", form.description); // Primary field for Transaction list
-    data.append("description", form.description);
-    data.append("vendor", form.vendor);
-    data.append("method", form.method);
-    data.append("date", form.date);
+    data.append("type",          "expense");
+    data.append("amount",        form.amount);
+    data.append("category",      form.category);
+    // FIX: Mapping local keys to backend required keys
+    data.append("item",          form.description); 
+    data.append("paymentMethod", form.method);
+    data.append("description",   buildFinalDescription());
+    data.append("date",          form.date);
     if (receipt) data.append("receipt", receipt);
     return data;
   };
+
+  // ── buildJsonPayload (JSON) ────────────────────────────────────────────────
+  const buildJsonPayload = () => ({
+    type:          "expense",
+    amount:        Number(form.amount),
+    category:      form.category,
+    // FIX: Mapping local keys to backend required keys
+    item:          form.description,
+    paymentMethod: form.method,
+    description:   buildFinalDescription(),
+    date:          form.date,
+  });
 
   const handleSave = async (e, shouldRedirect = true) => {
     if (e) e.preventDefault();
@@ -89,26 +110,17 @@ export default function AddExpense() {
     setSaving(true);
     setError(null);
     try {
-      // Note: If your backend doesn't support FormData, 
-      // change buildFormData() back to a standard object.
-      const payload = receipt ? buildFormData() : { 
-        ...form, 
-        type: "expense", 
-        title: form.description, 
-        amount: Number(form.amount) 
-      };
-
+      const payload = receipt ? buildFormData() : buildJsonPayload();
       await addTransaction(payload);
-      
+
       if (shouldRedirect) {
         navigate("/transactions");
       } else {
-        // Handle "Save & Add Another"
         setForm({ ...EMPTY_FORM });
         removeReceipt();
         setToastOk(true);
         setTimeout(() => setToastOk(false), 3000);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err) {
       setError(err.message || "Failed to save expense.");
@@ -120,8 +132,6 @@ export default function AddExpense() {
   return (
     <div className="add-expense-page">
       <div className="add-expense-page__inner">
-        
-        {/* Success Toast for "Add Another" */}
         {toastOk && (
           <div className="add-income-card__banner add-income-card__banner--success">
             <CheckCircle2 size={16} /> Expense saved successfully!
@@ -136,53 +146,105 @@ export default function AddExpense() {
         <p className="add-expense-page__subheading">Record money going out of your business</p>
 
         <div className="add-expense-card">
-          {error && <div className="add-expense-card__banner add-expense-card__banner--error"><span>⚠</span> {error}</div>}
+          {error && (
+            <div className="add-expense-card__banner add-expense-card__banner--error">
+              <span>⚠</span> {error}
+            </div>
+          )}
 
           <form onSubmit={(e) => handleSave(e, true)} noValidate>
             <div className="add-expense-form">
+              {/* Amount */}
               <div className="add-expense-form__field--full">
-                <label htmlFor="exp-amount" className="add-expense-form__label">Amount (Naira) <span className="required">*</span></label>
+                <label htmlFor="exp-amount" className="add-expense-form__label">
+                  Amount (Naira) <span className="required">*</span>
+                </label>
                 <div className="add-expense-form__input-wrap">
                   <span className="add-expense-form__prefix">₦</span>
                   <input
                     id="exp-amount" name="amount" type="number" placeholder="0.00"
                     value={form.amount} onChange={handleChange}
-                    className="add-expense-form__input add-expense-form__input--prefix" autoFocus required
+                    className="add-expense-form__input add-expense-form__input--prefix"
+                    autoFocus required
                   />
                 </div>
               </div>
 
+              {/* Category */}
               <div>
-                <label htmlFor="exp-category" className="add-expense-form__label">Category <span className="required">*</span></label>
-                <select id="exp-category" name="category" value={form.category} onChange={handleChange} className="add-expense-form__select" required>
+                <label htmlFor="exp-category" className="add-expense-form__label">
+                  Category <span className="required">*</span>
+                </label>
+                <select
+                  id="exp-category" name="category"
+                  value={form.category} onChange={handleChange}
+                  className="add-expense-form__select" required
+                >
                   <option value="" disabled>Select category</option>
-                  {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {EXPENSE_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
               </div>
 
+              {/* Payment Method */}
               <div>
-                <label htmlFor="exp-method" className="add-expense-form__label">Payment Method <span className="required">*</span></label>
-                <select id="exp-method" name="method" value={form.method} onChange={handleChange} className="add-expense-form__select" required>
+                <label htmlFor="exp-method" className="add-expense-form__label">
+                  Payment Method <span className="required">*</span>
+                </label>
+                <select
+                  id="exp-method" name="method"
+                  value={form.method} onChange={handleChange}
+                  className="add-expense-form__select" required
+                >
                   <option value="" disabled>Select method</option>
-                  {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
+                  {PAYMENT_METHODS.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
                 </select>
               </div>
 
+              {/* Vendor */}
               <div>
-                <label htmlFor="exp-vendor" className="add-expense-form__label">Vendor / Supplier <span className="optional">(Optional)</span></label>
-                <input id="exp-vendor" name="vendor" type="text" placeholder="e.g. Suppliers" value={form.vendor} onChange={handleChange} className="add-expense-form__input" />
+                <label htmlFor="exp-vendor" className="add-expense-form__label">
+                  Vendor / Supplier <span className="optional">(Optional)</span>
+                </label>
+                <input
+                  id="exp-vendor" name="vendor" type="text"
+                  placeholder="e.g. Suppliers"
+                  value={form.vendor} onChange={handleChange}
+                  className="add-expense-form__input"
+                />
               </div>
 
+              {/* Description / Item */}
               <div>
-                <label htmlFor="exp-desc" className="add-expense-form__label">Description <span className="required">*</span></label>
-                <input id="exp-desc" name="description" type="text" placeholder="e.g. Restocked Inventory" value={form.description} onChange={handleChange} className="add-expense-form__input" required />
+                <label htmlFor="exp-desc" className="add-expense-form__label">
+                  Item / Description <span className="required">*</span>
+                </label>
+                <input
+                  id="exp-desc" name="description" type="text"
+                  placeholder="e.g. Restocked Inventory"
+                  value={form.description} onChange={handleChange}
+                  className="add-expense-form__input" required
+                />
               </div>
 
+              {/* Date */}
               <div className="add-expense-form__field--full">
-                <label htmlFor="exp-date" className="add-expense-form__label">Date <span className="required">*</span></label>
+                <label htmlFor="exp-date" className="add-expense-form__label">
+                  Date <span className="required">*</span>
+                </label>
                 <div className="add-expense-form__input-wrap">
-                  <input id="exp-date" name="date" type="date" value={form.date} onChange={handleChange} className="add-expense-form__input add-expense-form__input--icon-right" required />
-                  <span className="add-expense-form__icon-right"><CalendarDays size={15} /></span>
+                  <input
+                    id="exp-date" name="date" type="date"
+                    value={form.date} onChange={handleChange}
+                    className="add-expense-form__input add-expense-form__input--icon-right"
+                    required
+                  />
+                  <span className="add-expense-form__icon-right">
+                    <CalendarDays size={15} />
+                  </span>
                 </div>
               </div>
 
@@ -198,7 +260,7 @@ export default function AddExpense() {
                     <p className="add-expense-form__preview-name"><FileImage size={12} /> {receipt?.name}</p>
                   </div>
                 ) : (
-                  <div 
+                  <div
                     className={`add-expense-form__dropzone${dragOver ? " add-expense-form__dropzone--active" : ""}`}
                     onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                     onDragLeave={() => setDragOver(false)}
@@ -218,14 +280,13 @@ export default function AddExpense() {
                 <button type="submit" disabled={saving} className="add-expense-form__btn add-expense-form__btn--primary">
                   {saving ? "Saving..." : "Save Expense"}
                 </button>
-                <button 
-                  type="button" 
-                  disabled={saving} 
-                  onClick={() => handleSave(null, false)} 
+                <button
+                  type="button" disabled={saving}
+                  onClick={() => handleSave(null, false)}
                   className="add-expense-form__btn add-expense-form__btn--secondary"
-                  style={{ border: '1px solid #1a9e6e', color: '#1a9e6e', background: 'transparent', width: '100%', marginTop: '10px' }}
+                  style={{ border: "1px solid #059669", color: "#059669", background: "transparent", width: "100%", marginTop: "10px" }}
                 >
-                  Save & Add Another
+                  Save &amp; Add Another
                 </button>
               </div>
             </div>

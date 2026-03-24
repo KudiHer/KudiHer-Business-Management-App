@@ -1,7 +1,7 @@
 
-
 export const BASE_URL = "https://kudiher-business-management-app.onrender.com";
 
+// ── Token helpers ─────────────────────────────────────────────────────────────
 const TOKEN_KEY = "kudiher_token";
 const USER_KEY  = "kudiher_user";
 
@@ -20,7 +20,7 @@ export const userStorage = {
   remove: ()     => localStorage.removeItem(USER_KEY),
 };
 
-// Core fetch wrapper
+// ── Core fetch wrapper ────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}, requiresAuth = true) {
   const headers = { "Content-Type": "application/json", ...options.headers };
 
@@ -43,8 +43,15 @@ async function apiFetch(path, options = {}, requiresAuth = true) {
   return body;
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
 // AUTH
+// ═════════════════════════════════════════════════════════════════════════════
 
+/**
+ * POST /api/auth/register
+ * Required body fields (from User.js schema):
+ *   fullName, email, password, phoneNumber, businessName, businessType
+ */
 export async function register({
   fullName,
   email,
@@ -57,23 +64,24 @@ export async function register({
     "/api/auth/register",
     {
       method: "POST",
-      body: JSON.stringify({
-        fullName,
-        email,
-        password,
-        phoneNumber,
-        businessName,
-        businessType,
-      }),
+      body: JSON.stringify({ fullName, email, password, phoneNumber, businessName, businessType }),
     },
-    false   
+    false
   );
   if (data.token) tokenStorage.set(data.token);
   if (data.user)  userStorage.set(data.user);
   return data;
 }
 
-
+/**
+ * POST /api/auth/login
+ * Body: { email, password }
+ * Returns: { token, user }
+ *
+ * Pure API call — does NOT touch AuthContext.
+ * The calling component (SignIn.jsx) calls setUser() from AuthContext after
+ * this resolves.
+ */
 export async function loginRequest({ email, password }) {
   const data = await apiFetch(
     "/api/auth/login",
@@ -85,16 +93,20 @@ export async function loginRequest({ email, password }) {
   return data;
 }
 
-
+/** Remove token + user from localStorage on sign-out. */
 export function logoutRequest() {
   tokenStorage.remove();
   userStorage.remove();
 }
 
-
+// ═════════════════════════════════════════════════════════════════════════════
 // TRANSACTIONS
+// ═════════════════════════════════════════════════════════════════════════════
 
-
+/**
+ * GET /api/transactions
+ * Returns the authenticated user's full transaction list.
+ */
 export async function fetchTransactions() {
   const data = await apiFetch("/api/transactions");
   return Array.isArray(data) ? data : data.transactions ?? data.data ?? [];
@@ -108,12 +120,22 @@ export async function fetchTransactionById(id) {
 }
 
 /**
- * POST /api/transactions
- * Body: { description, category, amount, type, date? }
- *   type = "income" | "expense" | "loan"
+ * POST /api/transactions/income
+ * Use this for income entries — the backend has a split endpoint.
  */
-export async function createTransaction(payload) {
-  return apiFetch("/api/transactions", {
+export async function createIncome(payload) {
+  return apiFetch("/api/transactions/income", {
+    method: "POST",
+    body:   JSON.stringify(payload),
+  });
+}
+
+/**
+ * POST /api/transactions/expense
+ * Use this for expense entries — the backend has a split endpoint.
+ */
+export async function createExpense(payload) {
+  return apiFetch("/api/transactions/expense", {
     method: "POST",
     body:   JSON.stringify(payload),
   });
@@ -136,73 +158,69 @@ export async function deleteTransaction(id) {
   return apiFetch(`/api/transactions/${id}`, { method: "DELETE" });
 }
 
-// PRODUCTS (STOCK ITEMS)
+// ═════════════════════════════════════════════════════════════════════════════
+// PRODUCTS
+// ═════════════════════════════════════════════════════════════════════════════
 
-
+/**
+ * GET /api/products
+ * Returns: { success, count, data: Product[] }
+ */
 export async function fetchProducts() {
   const data = await apiFetch("/api/products");
   return {
     count: data?.count ?? 0,
     items: Array.isArray(data?.data) ? data.data : [],
-    raw: data,
+    raw:   data,
   };
 }
 
+/**
+ * GET /api/products/:id
+ */
 export async function fetchProductById(id) {
   const data = await apiFetch(`/api/products/${id}`);
   return data?.data ?? data;
 }
 
+/**
+ * POST /api/products
+ */
 export async function createProduct(payload) {
   const data = await apiFetch("/api/products", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body:   JSON.stringify(payload),
   });
   return data?.data ?? data;
 }
 
+/**
+ * PUT /api/products/:id
+ */
 export async function updateProduct(id, payload) {
   const data = await apiFetch(`/api/products/${id}`, {
     method: "PUT",
-    body: JSON.stringify(payload),
+    body:   JSON.stringify(payload),
   });
   return data?.data ?? data;
 }
 
+/**
+ * DELETE /api/products/:id
+ */
 export async function deleteProduct(id) {
   return apiFetch(`/api/products/${id}`, { method: "DELETE" });
 }
 
-// SALES
+// ═════════════════════════════════════════════════════════════════════════════
+// COMPUTED HELPERS  (pure JS — no network calls)
+// ═════════════════════════════════════════════════════════════════════════════
 
-
-export async function createSale(payload) {
-  const data = await apiFetch("/api/sales", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-  return data?.data ?? data;
-}
-
-export async function fetchSales(params = {}) {
-  const search = new URLSearchParams();
-  if (params.from) search.set("from", params.from);
-  if (params.to)   search.set("to",   params.to);
-  const query = search.toString() ? `?${search.toString()}` : "";
-  const data = await apiFetch(`/api/sales${query}`);
-  return {
-    count: data?.count ?? 0,
-    items: Array.isArray(data?.data) ? data.data : [],
-    raw: data,
-  };
-}
-
-export async function fetchSalesSummary() {
-  return apiFetch("/api/sales/summary");
-}
-
-//Computed Helpers
-
+/**
+ * Derive summary card figures from a real transactions array.
+ * @param {string} period  "today" | "week" | "month"
+ * @param {Array}  txns    Full list from fetchTransactions()
+ */
 export function computeSummary(period, txns = []) {
   const now   = new Date();
   const start = new Date();
@@ -217,8 +235,7 @@ export function computeSummary(period, txns = []) {
     start.setHours(0, 0, 0, 0);
   }
 
-  const current = txns.filter((t) => new Date(t.date ?? t.createdAt) >= start);
-
+  const current       = txns.filter((t) => new Date(t.date ?? t.createdAt) >= start);
   const totalIncome   = current.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
   const totalExpenses = current.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
   const netProfit     = totalIncome - totalExpenses;
@@ -258,6 +275,11 @@ export function computeSummary(period, txns = []) {
   };
 }
 
+/**
+ * Derive cash-flow chart series from real transactions.
+ * @param {string} period  "today" | "week" | "month"
+ * @param {Array}  txns    Full list from fetchTransactions()
+ */
 export function computeCashFlow(period, txns = []) {
   const now = new Date();
 
@@ -290,6 +312,7 @@ export function computeCashFlow(period, txns = []) {
     });
   }
 
+  // month — 4 ISO weeks
   return Array.from({ length: 4 }, (_, i) => {
     const wStart = new Date(now.getFullYear(), now.getMonth(), 1 + i * 7);
     const wEnd   = new Date(now.getFullYear(), now.getMonth(), 1 + (i + 1) * 7);
@@ -303,10 +326,16 @@ export function computeCashFlow(period, txns = []) {
 }
 
 // ── ActionButton wrappers ─────────────────────────────────────────────────────
-export const postAddIncome  = (p) => createTransaction({ ...p, type: "income"  });
-export const postAddExpense = (p) => createTransaction({ ...p, type: "expense" });
-export const postRecordLoan = (p) => createTransaction({ ...p, type: "loan"    });
+// These are the functions ActionButtons.jsx calls.
+// Both now route to the correct split endpoints.
+export const postAddIncome  = (p) => createIncome({ ...p, type: "income"  });
+export const postAddExpense = (p) => createExpense({ ...p, type: "expense" });
 
+// Loans use the generic income/expense endpoint — adjust if the backend
+// adds a dedicated /api/transactions/loan endpoint later.
+export const postRecordLoan = (p) => createIncome({ ...p, type: "loan" });
+
+// ── Low stock helper (client-side stub until GET /api/products is wired) ─────
 export async function fetchLowStockItems() {
   return [
     { id: 1, name: "Golden Penny Semovita (2kg)", quantity: 3, threshold: 10 },
